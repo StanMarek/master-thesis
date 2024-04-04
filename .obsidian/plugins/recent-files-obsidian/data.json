@@ -1,0 +1,43 @@
+{
+  "recentFiles": [
+    {
+      "basename": "Implementation",
+      "path": "Chapters/Implementation.md"
+    },
+    {
+      "basename": "Literature",
+      "path": "Chapters/Literature.md"
+    },
+    {
+      "basename": "Tests",
+      "path": "Chapters/Tests.md"
+    },
+    {
+      "basename": "Theory",
+      "path": "Chapters/Theory.md"
+    },
+    {
+      "basename": "Ideas",
+      "path": "Chapters/Ideas.md"
+    },
+    {
+      "basename": "Conclusions",
+      "path": "Chapters/Conclusions.md"
+    },
+    {
+      "basename": "Abstract",
+      "path": "Chapters/Abstract.md"
+    },
+    {
+      "basename": "Overview",
+      "path": "Overview.md"
+    },
+    {
+      "basename": "Arch Project",
+      "path": "Arch Project.canvas"
+    }
+  ],
+  "omittedPaths": [],
+  "maxLength": null,
+  "openType": "tab"
+}
