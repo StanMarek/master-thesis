@@ -6,22 +6,9 @@
       {
         "id": "a597830bbf5faf0a",
         "type": "tabs",
-        "dimension": 48.589341692789965,
         "children": [
           {
             "id": "1fff24b34e5e6457",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Chapters/Literature.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "f57eb81cb3d216eb",
             "type": "leaf",
             "state": {
               "type": "canvas",
@@ -39,27 +26,15 @@
             "id": "f909b744b5597340",
             "type": "leaf",
             "state": {
-              "type": "graph",
-              "state": {}
+              "type": "diff-view",
+              "state": {
+                "staged": false,
+                "file": "Chapters/Ideas.md"
+              }
             }
           }
         ],
-        "currentTab": 2
-      },
-      {
-        "id": "f02d29ac871eda49",
-        "type": "tabs",
-        "dimension": 51.410658307210035,
-        "children": [
-          {
-            "id": "8fd93293f01f5ea8",
-            "type": "leaf",
-            "state": {
-              "type": "graph",
-              "state": {}
-            }
-          }
-        ]
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -88,7 +63,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "git",
+                "query": "",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -113,8 +88,7 @@
               "state": {}
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "horizontal",
@@ -209,20 +183,20 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "17e99dd0622f507a",
+  "active": "f909b744b5597340",
   "lastOpenFiles": [
-    "Chapters/Implementation.md",
-    "Chapters/Literature.md",
+    "Chapters/Ideas.md",
     "Chapters/Tests.md",
+    "Chapters/Implementation.md",
     "Chapters/Theory.md",
+    "Chapters/Literature.md",
+    "Overview.md",
+    "Chapters/Abstract.md",
+    "Arch Project.canvas",
+    "Chapters/Conclusions.md",
+    "Chapters/assets/Pasted image 20240319223035.png",
     "Chapters/assets/Pasted image 20240319224218.png",
     "Chapters/assets/Pasted image 20240319223435.png",
-    "Chapters/assets/Pasted image 20240319223035.png",
-    "Chapters/Ideas.md",
-    "Chapters/Conclusions.md",
-    "Chapters/Abstract.md",
-    "Overview.md",
-    "Arch Project.canvas",
     "assets/Screenshot_20240315_232304.png",
     "Chapters/assets/Screenshot_20240315_232304.png",
     "Chapters/assets",

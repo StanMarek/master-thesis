@@ -3,18 +3,18 @@
 > [!note] 
 > Warto rozważyć dodanie kilku dodatkowych rozdziałów, które mogą wzbogacić treść pracy i lepiej przedstawić czytelnikom założenia projektu, jego zastosowania oraz kontekst badawczy. Oto kilka propozycji: 
 
-### 7. Przegląd istniejących rozwiązań
+### ~~7. Przegląd istniejących rozwiązań~~
 
-**Opis**: Ten rozdział może zawierać szczegółowy przegląd i analizę istniejących rozwiązań w zakresie zdalnego post-processingu i optymalizacji przesyłania danych. Porównanie z innymi systemami pozwoli podkreślić innowacyjność Twojego podejścia oraz wskazać na potencjalne przewagi i słabości.
+~~**Opis**: Ten rozdział może zawierać szczegółowy przegląd i analizę istniejących rozwiązań w zakresie zdalnego post-processingu i optymalizacji przesyłania danych. Porównanie z innymi systemami pozwoli podkreślić innowacyjność Twojego podejścia oraz wskazać na potencjalne przewagi i słabości.~~
 
-**Podrozdziały**:
+~~**Podrozdziały**:~~
 
-- 7.1. Kryteria porównawcze
-- 7.2. Istniejące systemy zdalnego post-processingu
-- 7.3. Metody optymalizacji przesyłania danych
-- 7.4. Analiza porównawcza
+- ~~7.1. Kryteria porównawcze~~
+- ~~7.2. Istniejące systemy zdalnego post-processingu~~
+- ~~7.3. Metody optymalizacji przesyłania danych~~
+- ~~7.4. Analiza porównawcza~~
 
-Celem tego rozdziału jest przedstawienie i analiza istniejących rozwiązań w zakresie zdalnego post-processingu i optymalizacji przesyłania danych. Poprzez porównanie zaproponowanego systemu z innymi dostępnymi na rynku, czytelnik uzyska lepsze zrozumienie innowacyjności oraz potencjalnych przewag i ograniczeń przedstawionego projektu.
+~~Celem tego rozdziału jest przedstawienie i analiza istniejących rozwiązań w zakresie zdalnego post-processingu i optymalizacji przesyłania danych. Poprzez porównanie zaproponowanego systemu z innymi dostępnymi na rynku, czytelnik uzyska lepsze zrozumienie innowacyjności oraz potencjalnych przewag i ograniczeń przedstawionego projektu.~~
 ### 8. Aspekty bezpieczeństwa
 
 **Opis**: Z uwagi na zdalny charakter systemu, aspekty bezpieczeństwa danych są kluczowe. W tym rozdziale należy omówić zabezpieczenia systemu, potencjalne zagrożenia dla bezpieczeństwa danych oraz metody ich przeciwdziałania.
