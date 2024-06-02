@@ -11,30 +11,15 @@
             "id": "1fff24b34e5e6457",
             "type": "leaf",
             "state": {
-              "type": "canvas",
+              "type": "markdown",
               "state": {
-                "file": "Arch Project.canvas",
-                "viewState": {
-                  "x": 0,
-                  "y": 0,
-                  "zoom": 0
-                }
-              }
-            }
-          },
-          {
-            "id": "f909b744b5597340",
-            "type": "leaf",
-            "state": {
-              "type": "diff-view",
-              "state": {
-                "staged": false,
-                "file": "Chapters/Ideas.md"
+                "file": "Chapters/Theory.md",
+                "mode": "preview",
+                "source": false
               }
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -108,6 +93,7 @@
             "state": {
               "type": "backlink",
               "state": {
+                "file": "Chapters/Theory.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -124,6 +110,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
+                "file": "Chapters/Theory.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -145,7 +132,9 @@
             "type": "leaf",
             "state": {
               "type": "outline",
-              "state": {}
+              "state": {
+                "file": "Chapters/Theory.md"
+              }
             }
           },
           {
@@ -183,17 +172,17 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "f909b744b5597340",
+  "active": "1fff24b34e5e6457",
   "lastOpenFiles": [
-    "Chapters/Ideas.md",
     "Chapters/Tests.md",
+    "Chapters/Literature.md",
+    "Chapters/Conclusions.md",
+    "Chapters/Abstract.md",
+    "Overview.md",
     "Chapters/Implementation.md",
     "Chapters/Theory.md",
-    "Chapters/Literature.md",
-    "Overview.md",
-    "Chapters/Abstract.md",
+    "Chapters/Ideas.md",
     "Arch Project.canvas",
-    "Chapters/Conclusions.md",
     "Chapters/assets/Pasted image 20240319223035.png",
     "Chapters/assets/Pasted image 20240319224218.png",
     "Chapters/assets/Pasted image 20240319223435.png",
