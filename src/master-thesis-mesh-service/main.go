@@ -3,53 +3,98 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-
-	"github.com/confluentinc/confluent-kafka-go/kafka"
+	"mesh-service/kafka"
+	"net/http"
 )
 
 const (
-	KafkaServer = "localhost:29092"
-	KafkaTopic  = "test-topic"
+	KafkaTopic = "kafka.check"
 )
 
-type TestStruct struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
+func main() {
+	producer := kafka.NewProducer()
+	defer producer.Close()
+
+	kafkaHandler := &KafkaHandler{
+		Producer: producer,
+		Topic:    KafkaTopic,
+	}
+
+	mux := http.NewServeMux()
+
+	mux.Handle("/api/health-check", &HomeHandler{})
+	mux.Handle("/api/kafka-check", kafkaHandler)
+
+	fmt.Println("Starting server on port 8080")
+	http.ListenAndServe(":8080", mux)
 }
 
-func main() {
-	p, err := kafka.NewProducer(&kafka.ConfigMap{
-		"bootstrap.servers": KafkaServer,
-	})
-	if err != nil {
-		panic(err)
+type HomeHandler struct {
+}
+
+type KafkaHandler struct {
+	Producer *kafka.Producer
+	Topic    string
+}
+
+type ApiHealth struct {
+	Status bool `json:"status"`
+}
+
+func (handler *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	status := ApiHealth{
+		Status: true,
 	}
-	fmt.Println("Producer created: ", p)
-	defer p.Close()
 
-	topic := KafkaTopic
+	bytes, err := json.Marshal(status)
 
-	// flush := p.Flush(15 * 1000)
-	// fmt.Println("Flush: ", flush)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Internal server error"))
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(bytes)
+}
+
+func (handler *KafkaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	producer := handler.Producer
+
+	sub := r.URL.Query().Get("clientId")
 
 	for i := 0; i < 10; i++ {
-		order := TestStruct{
+		testStruct := kafka.TestStruct{
 			ID:   i,
-			Name: "Test xyz",
+			Name: "Test",
+			Sub:  sub,
 		}
 
-		value, err := json.Marshal(order)
-		if err != nil {
-			panic(err)
-		}
-		err = p.Produce(&kafka.Message{
-			TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
-			Value:          value,
-		}, nil)
+		message, err := json.Marshal(testStruct)
 
 		if err != nil {
 			panic(err)
 		}
+
+		kafka.PublishMessage(producer, KafkaTopic, message)
 	}
 
+	w.Header().Set("Content-Type", "application/json")
+
+	status := ApiHealth{
+		Status: true,
+	}
+
+	bytes, err := json.Marshal(status)
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Internal server error"))
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(bytes)
 }

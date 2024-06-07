@@ -1,12 +1,15 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Inject } from '@nestjs/common';
+import { KafkaService } from './kafka.service';
 import { EventPattern, Payload, Transport } from '@nestjs/microservices';
 
 @Controller()
 export class KafkaController {
-  constructor() {}
+  constructor(
+    @Inject(KafkaService) private readonly kafkaService: KafkaService,
+  ) {}
 
-  @EventPattern('test-topic', Transport.KAFKA)
-  handleKafkaMessage(@Payload() payload: any) {
-    console.log('Received message kafka controller:', payload);
+  @EventPattern('kafka.check', Transport.KAFKA)
+  checkKafka(@Payload() payload: any) {
+    this.kafkaService.handleTestMessage(payload);
   }
 }

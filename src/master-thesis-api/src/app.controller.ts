@@ -1,28 +1,46 @@
-import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
-import {
-  EventPattern,
-  MessagePattern,
-  Payload,
-  Transport,
-} from '@nestjs/microservices';
+import { Controller, Get, Inject, UseGuards } from '@nestjs/common';
+
+import { SocketService } from './socket/socket.service';
+import { MeshApiService } from './mesh-api/mesh-api.service';
+import { AuthGuard } from '@nestjs/passport';
+import { User } from './user/user.decorator';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(
+    @Inject(SocketService) private readonly socketService: SocketService,
+    @Inject(MeshApiService) private readonly meshApiService: MeshApiService,
+  ) {}
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  @Get('api-health-check')
+  healthCheck() {
+    return {
+      status: true,
+    };
   }
 
-  @EventPattern('test-topic', Transport.KAFKA)
-  handleKafkaMessage(@Payload() payload: any) {
-    console.log('Received message event:', payload);
+  @UseGuards(AuthGuard('jwt'))
+  @Get('ws-connection-status')
+  wsConnectionEstablished(@User() user: any) {
+    return {
+      status: this.socketService.connectionEstablished(user.sub),
+    };
   }
 
-  @MessagePattern('test-topic', Transport.KAFKA)
-  handleMessage(@Payload() payload: any) {
-    console.log('Received message message:', payload);
+  @Get('mesh-api-health-check')
+  async meshApiHealthCheck() {
+    const status = await this.meshApiService.checkMeshApiHealth();
+    return {
+      status,
+    };
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('kafka-health-check')
+  async kafkaHealthCheck(@User() user: any) {
+    const status = await this.meshApiService.checkKafkaHealth(user.sub);
+    return {
+      status,
+    };
   }
 }

@@ -25,4 +25,39 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
-  
+  minio:
+    image: minio/minio:latest
+    container_name: minio-blob-storage
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=minio-root-user
+      - MINIO_ROOT_PASSWORD=minio-root-password
+    volumes:
+      - master-thesis-minio-data:/data
+    networks:
+      - master-thesis-network
+    command: server --console-address ":9001" /data
+
+  postgres:
+    image: postgres
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: master-thesis-db-password
+      POSTGRES_USER: master-thesis-db-user
+      POSTGRES_DB: master-thesis-db
+    volumes:
+      - master-thesis-postgres-data:/var/lib/postgresql/data
+    networks:
+      - master-thesis-network
+
+volumes:
+  master-thesis-postgres-data:
+  master-thesis-minio-data:
+    driver: local
+
+networks:
+  master-thesis-network:

@@ -1,32 +1,32 @@
 {
   "recentFiles": [
     {
-      "basename": "Theory",
-      "path": "Chapters/Theory.md"
-    },
-    {
-      "basename": "Tests",
-      "path": "Chapters/Tests.md"
+      "basename": "Implementation",
+      "path": "Chapters/Implementation.md"
     },
     {
       "basename": "Literature",
       "path": "Chapters/Literature.md"
     },
     {
-      "basename": "Conclusions",
-      "path": "Chapters/Conclusions.md"
+      "basename": "Overview",
+      "path": "Overview.md"
+    },
+    {
+      "basename": "Theory",
+      "path": "Chapters/Theory.md"
     },
     {
       "basename": "Abstract",
       "path": "Chapters/Abstract.md"
     },
     {
-      "basename": "Overview",
-      "path": "Overview.md"
+      "basename": "Tests",
+      "path": "Chapters/Tests.md"
     },
     {
-      "basename": "Implementation",
-      "path": "Chapters/Implementation.md"
+      "basename": "Conclusions",
+      "path": "Chapters/Conclusions.md"
     },
     {
       "basename": "Ideas",

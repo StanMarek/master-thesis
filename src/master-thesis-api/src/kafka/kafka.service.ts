@@ -1,31 +1,14 @@
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
-import { ClientKafka } from '@nestjs/microservices';
-import { Kafka as KafkaConsumer } from '@nestjs/microservices/external/kafka.interface';
+import { Inject, Injectable } from '@nestjs/common';
+import { SocketService } from 'src/socket/socket.service';
 
 @Injectable()
-export class KafkaService implements OnModuleInit {
-  private kafkaClient: KafkaConsumer;
-
+export class KafkaService {
   constructor(
-    @Inject('KAFKA_BROKER') private readonly kafkaBroker: ClientKafka,
+    @Inject(SocketService) private readonly socketService: SocketService,
   ) {}
 
-  onModuleInit() {
-    this.kafkaClient = this.kafkaBroker.createClient();
-
-    this.kafkaClient
-      .consumer({
-        groupId: 'kafka-consumer',
-      })
-      .connect()
-      .then(() => {
-        console.log('Kafka consumer connected');
-      });
-
-    this.kafkaClient
-      .consumer({
-        groupId: 'kafka-consumer',
-      })
-      .subscribe({ topic: 'test-topic' });
+  handleTestMessage(payload: any) {
+    console.log('Received message value:', payload);
+    this.socketService.emit('kafka.check', payload, payload.sub);
   }
 }
