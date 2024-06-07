@@ -64,19 +64,17 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }) {
     let result = true;
 
-    if (token.iss !== 'https://dev-12wyyjij7ak1f3zd.us.auth0.com/') {
+    if (token.iss !== '') {
       Logger.error('Token issuer is not valid');
       result = false;
     }
 
-    if (!token.aud.includes('https://master-thesis-api.com')) {
+    if (!token.aud.includes('')) {
       Logger.error('Token audience is not valid');
       result = false;
     }
 
-    if (
-      !token.aud.includes('https://dev-12wyyjij7ak1f3zd.us.auth0.com/userinfo')
-    ) {
+    if (!token.aud.includes('')) {
       Logger.error('Token audience is not valid');
       result = false;
     }

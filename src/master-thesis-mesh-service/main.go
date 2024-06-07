@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	KafkaTopic = "kafka.check"
+	KafkaTestTopic = "kafka.check"
 )
 
 func main() {
@@ -17,7 +17,7 @@ func main() {
 
 	kafkaHandler := &KafkaHandler{
 		Producer: producer,
-		Topic:    KafkaTopic,
+		Topic:    KafkaTestTopic,
 	}
 
 	mux := http.NewServeMux()
@@ -78,7 +78,7 @@ func (handler *KafkaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			panic(err)
 		}
 
-		kafka.PublishMessage(producer, KafkaTopic, message)
+		kafka.PublishMessage(producer, KafkaTestTopic, message)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
