@@ -1,7 +1,8 @@
 import { ExecutionContext, createParamDecorator } from '@nestjs/common';
+import { UserDTO } from './dto/user.dto';
 
 export const BasicUser = createParamDecorator(
-  (_: unknown, ctx: ExecutionContext): { sub: string } | undefined => {
+  (_: unknown, ctx: ExecutionContext): UserDTO | undefined => {
     const tokenPayload = ctx.switchToHttp().getRequest().user;
     const user = tokenPayload;
 

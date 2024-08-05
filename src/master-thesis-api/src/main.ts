@@ -2,22 +2,9 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
-import { checkEnvs } from './util/check-envs';
+import { checkEnvs } from './common/util/check-envs';
 import { ValidationPipe } from '@nestjs/common';
-
-export const REQUIRED_ENVS = [
-  'KAFKA_BROKER',
-  'KAFKA_CLIENT_ID',
-  'KAFKAJS_NO_PARTITIONER_WARNING',
-  'BLOB_STORAGE_ACCESS',
-  'BLOB_STORAGE_SECRET',
-  'BLOB_STORAGE_ENDPOINT',
-  'BLOB_STORAGE_PORT',
-  'DB_CONNECTION_STRING',
-  'AUTH0_PORT',
-  'AUTH0_ISSUER_URL',
-  'AUTH0_AUDIENCE',
-] as const;
+import { REQUIRED_ENVS } from './common/const';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

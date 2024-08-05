@@ -1,8 +1,8 @@
 import { Controller, Get, Inject, UseGuards } from '@nestjs/common';
 
-import { SocketService } from './socket/socket.service';
-import { MeshApiService } from './mesh-api/mesh-api.service';
 import { AuthGuard } from '@nestjs/passport';
+import { MeshApiService } from './mesh-api/mesh-api.service';
+import { SocketService } from './socket/socket.service';
 import { User } from './user/user.decorator';
 
 @Controller()
@@ -16,6 +16,7 @@ export class AppController {
   healthCheck() {
     return {
       status: true,
+      version: process.env.npm_package_version,
     };
   }
 

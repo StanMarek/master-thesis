@@ -13,12 +13,42 @@ datasource db {
   url      = env("DB_CONNECTION_STRING")
 }
 
-model Mesh {
-  id        String   @id @default(cuid())
-  user      String
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+// Define the File model for storing file metadata
+model File {
+  id           String        @id @default(uuid()) // Unique identifier for the file, using UUID for uniqueness
+  name         String? // Name of the file
+  originalName String // Original name of the file when uploaded
+  type         String // MIME type of the file (e.g., image/png, text/plain)
+  size         Int // Size of the file in bytes
+  path         String // Path to the file in storage
+  createdAt    DateTime      @default(now()) // Timestamp of when the file was created
+  owner        String
+  tags         String[]      @default([]) // Array of tags for categorizing or searching files
+  description  String? // Optional description of the file
+  format       String // Optional format of the file (e.g., JPEG, PDF)
+  mesh         MeshMetadata?
+}
 
-  @@unique([user, name])
+// Define the MeshMetadata model
+model MeshMetadata {
+  id             String          @id @default(cuid()) // Unique identifier
+  owner          String // Author of the mesh
+  file           File            @relation(fields: [fileId], references: [id]) // Establishing a relation with File
+  fileId         String          @unique // Unique reference to the file
+  verticesCount  Int
+  name           String          @unique // Name of the mesh
+  description    String? // Optional description of the mesh
+  createdAt      DateTime        @default(now()) // Timestamp of creation
+  updatedAt      DateTime        @updatedAt // Timestamp of last update
+  meshCommodites MeshCommodity[]
+}
+
+// Define the MeshCommodity model
+model MeshCommodity {
+  id            String       @id @default(cuid()) // Unique identifier
+  name          String // Name of the commodity
+  meshId        String // Foreign key to Mesh
+  mesh          MeshMetadata @relation(fields: [meshId], references: [id]) // Establishing a relation with Mesh
+  visible       Boolean      @default(true) // Visibility status of the commodity
+  fileLineIndex Int // Index of the line in the file where the commodity is defined
 }

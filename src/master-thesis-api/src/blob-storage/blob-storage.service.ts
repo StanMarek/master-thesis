@@ -1,6 +1,7 @@
 import { Inject, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Client } from 'minio';
+import { BUCKET_DEFAUlT_NAME } from 'src/common/const';
 
 export class BlobStorageService implements OnModuleInit {
   private client: Client;
@@ -24,13 +25,18 @@ export class BlobStorageService implements OnModuleInit {
     });
   }
 
-  private async createBucket(bucketName: string) {
-    if (!(await this.client.bucketExists(bucketName))) {
-      await this.client.makeBucket(bucketName, 'eu-west-1');
+  getDownloadUrl(path: string) {
+    return this.client.presignedGetObject(BUCKET_DEFAUlT_NAME, path);
+  }
+
+  private async createBucket(bucketName = BUCKET_DEFAUlT_NAME) {
+    const bucketExists = await this.client.bucketExists(bucketName);
+    if (!bucketExists) {
+      await this.client.makeBucket(bucketName);
     }
   }
 
-  async getFile(fileName: string, bucketName: string) {
+  async getFile(fileName: string, bucketName = BUCKET_DEFAUlT_NAME) {
     await this.createBucket(bucketName);
     if (!fileName) {
       return;
@@ -41,8 +47,8 @@ export class BlobStorageService implements OnModuleInit {
 
   async putFile(
     fileName: string,
-    bucketName: string,
     file: Express.Multer.File,
+    bucketName = BUCKET_DEFAUlT_NAME,
   ) {
     await this.createBucket(bucketName);
 

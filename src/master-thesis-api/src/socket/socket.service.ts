@@ -2,45 +2,82 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConnectedSocket } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 
+import {
+  SocketEvent,
+  SocketEventDataType,
+  SocketEventName,
+  SocketEventType,
+} from 'src/common/ws';
+
 @Injectable()
 export class SocketService {
-  private readonly connectedClients: Map<string, Socket> = new Map();
-  private readonly clientSubMap = new Map<string, string>();
+  private readonly connectedClients: Record<string, Socket[]> = {};
+  private readonly clientSubMap: Record<string, string[]> = {};
 
   handleConnection(@ConnectedSocket() socket: Socket, sub: string): void {
     const clientId = socket.id;
-    this.clientSubMap.set(sub, clientId);
-    this.connectedClients.set(clientId, socket);
+    if (!this.connectedClients[clientId]) {
+      this.connectedClients[clientId] = [];
+    }
+    if (!this.clientSubMap[sub]) {
+      this.clientSubMap[sub] = [];
+    }
+    this.clientSubMap[sub].push(clientId);
+    this.connectedClients[clientId].push(socket);
 
     Logger.verbose(`Client connected: ${clientId} with sub: ${sub}`);
 
-    socket.emit('client.socket.connect', {
-      status: 'connected',
-      clientId,
-    });
+    this.emit(
+      SocketEventName.CONNECTED,
+      {
+        data: {
+          status: 'connected',
+          clientId,
+        },
+        message: 'Client connected',
+        status: true,
+      },
+      sub,
+    );
   }
 
   handleDisconnect(socket: Socket) {
     const clientId = socket.id;
-    this.connectedClients.delete(clientId);
+    this.connectedClients[clientId] = this.connectedClients[clientId].filter(
+      (s) => s !== socket,
+    );
     Logger.verbose(`Client disconnected: ${clientId}`);
   }
 
   connectionEstablished(sub: string) {
-    const clientId = this.clientSubMap.get(sub);
-    const socket = this.connectedClients.get(clientId);
+    const clientIds = this.clientSubMap[sub];
+    const sockets = [];
 
-    return !!socket;
+    clientIds.forEach((clientId) => {
+      sockets.push(...this.connectedClients[clientId]);
+    });
+
+    return sockets.length > 0;
   }
 
-  emit(event: string, data: any, sub: string) {
-    const clientId = this.clientSubMap.get(sub);
+  emit<E extends keyof SocketEventType>(
+    event: SocketEventName,
+    data: SocketEventDataType<SocketEventType[E]>,
+    sub: string,
+  ) {
+    Logger.verbose(`Emitting event: ${event} to sub: ${sub}`);
+    const clientIds = this.clientSubMap[sub];
 
-    if (clientId) {
-      const socket = this.connectedClients.get(clientId);
+    if (clientIds.length) {
+      const sockets = [];
 
-      if (socket) {
-        socket.emit(event, data);
+      clientIds.forEach((clientId) => {
+        sockets.push(...this.connectedClients[clientId]);
+      });
+
+      if (sockets.length) {
+        for (const socket of sockets)
+          socket.emit(SocketEvent[event].eventName, data);
       }
     }
   }
