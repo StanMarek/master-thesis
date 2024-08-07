@@ -11,6 +11,7 @@ import { SocketModule } from './socket/socket.module';
 import { MeshApiModule } from './mesh-api/mesh-api.module';
 import { FileModule } from './file/file.module';
 import { MeshModule } from './mesh/mesh.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -26,6 +27,8 @@ import { MeshModule } from './mesh/mesh.module';
     FileModule,
 
     MeshModule,
+
+    EventEmitterModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [AppService],

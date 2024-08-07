@@ -52,6 +52,7 @@ export class FileController {
   @Get(':id')
   async getFile(@User() user: UserDTO, @Param('id') id: string) {
     const file = await this.fileService.getFile(user, id);
+
     const downloadUrl = await this.blobStorageService.getDownloadUrl(file.path);
 
     delete file.path;

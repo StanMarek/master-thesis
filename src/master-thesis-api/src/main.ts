@@ -16,6 +16,7 @@ async function bootstrap() {
 
   checkEnvs(REQUIRED_ENVS);
 
+  // TEMP DISABLE KAFKA
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.KAFKA,
     options: {
@@ -26,7 +27,17 @@ async function bootstrap() {
     },
   });
 
-  app.enableCors();
+  app.enableCors({
+    origin: '*',
+    // methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    // allowedHeaders: [
+    //   'Content-Type',
+    //   'Authorization',
+    //   'X-Requested-With',
+    //   'Accept',
+    //   'Authorization',
+    // ],
+  });
   app.useGlobalPipes(
     new ValidationPipe({
       disableErrorMessages: true,

@@ -26,6 +26,7 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
+import { BASE_API_URL } from '../App';
 
 // Define the type for file data
 interface FilesData {
@@ -147,7 +148,7 @@ export function FilesTable({ refresh }: { refresh: boolean }) {
         } else {
           const token = await getAccessTokenSilently();
 
-          const response = await axios.get('http://localhost:3000/api/file', {
+          const response = await axios.get(`${BASE_API_URL}/file`, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -179,7 +180,7 @@ export function FilesTable({ refresh }: { refresh: boolean }) {
   const handleConfirmDelete = async () => {
     if (fileToDelete) {
       try {
-        await axios.delete(`http://localhost:3000/api/file/${fileToDelete.id}`, {
+        await axios.delete(`${BASE_API_URL}/file/${fileToDelete.id}`, {
           headers: {
             Authorization: `Bearer ${await getAccessTokenSilently()}`,
           },
@@ -200,7 +201,7 @@ export function FilesTable({ refresh }: { refresh: boolean }) {
 
   const handleEdit = async (id: string) => {
     const file = await axios
-      .get(`http://localhost:3000/api/file/${id}`, {
+      .get(`${BASE_API_URL}/file/${id}`, {
         headers: {
           Authorization: `Bearer ${await getAccessTokenSilently()}`,
         },
@@ -240,15 +241,11 @@ export function FilesTable({ refresh }: { refresh: boolean }) {
       };
 
       try {
-        const response = await axios.patch(
-          `http://localhost:3000/api/file/${selectedFile.id}`,
-          updatedFile,
-          {
-            headers: {
-              Authorization: `Bearer ${await getAccessTokenSilently()}`,
-            },
+        const response = await axios.patch(`${BASE_API_URL}/file/${selectedFile.id}`, updatedFile, {
+          headers: {
+            Authorization: `Bearer ${await getAccessTokenSilently()}`,
           },
-        );
+        });
         console.log('File updated successfully:', response.data);
 
         setSnackbarMessage('File updated successfully!');
@@ -298,14 +295,11 @@ export function FilesTable({ refresh }: { refresh: boolean }) {
   const handleCalculateMesh = async () => {
     if (selectedFile) {
       try {
-        const response = await axios.get(
-          `http://localhost:3000/api/mesh/calculate/${selectedFile.id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${await getAccessTokenSilently()}`,
-            },
+        const response = await axios.get(`${BASE_API_URL}/mesh/calculate/${selectedFile.id}`, {
+          headers: {
+            Authorization: `Bearer ${await getAccessTokenSilently()}`,
           },
-        );
+        });
         console.log('File calculated successfully:', response.data);
         handleDialogClose();
       } catch (error) {

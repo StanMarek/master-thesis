@@ -17,6 +17,7 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
+import { BASE_API_URL } from '../App';
 
 // Define the type for file data
 interface MeshesData {
@@ -112,7 +113,7 @@ export function MeshTable({ refresh }: { refresh: boolean }) {
         } else {
           const token = await getAccessTokenSilently();
 
-          const response = await axios.get('http://localhost:3000/api/mesh', {
+          const response = await axios.get(`${BASE_API_URL}/mesh`, {
             headers: {
               Authorization: `Bearer ${token}`,
             },

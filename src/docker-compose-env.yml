@@ -1,9 +1,9 @@
 version: '3'
-name: 'master-thesis-docker'
+name: 'master-thesis-docker-env'
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.4.4
-    container_name: zookeeper
+    container_name: zookeeper-${ENV_NAME}
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
@@ -12,7 +12,7 @@ services:
   
   kafka:
     image: confluentinc/cp-kafka:7.4.4
-    container_name: kafka-broker
+    container_name: kafka-broker-${ENV_NAME}
     depends_on:
       - zookeeper
     ports:
@@ -27,13 +27,13 @@ services:
 
   minio:
     image: minio/minio:latest
-    container_name: minio-blob-storage
+    container_name: minio-blob-storage-${ENV_NAME}
     ports:
       - "9000:9000"
       - "9001:9001"
     environment:
-      - MINIO_ROOT_USER=minio-root-user
-      - MINIO_ROOT_PASSWORD=minio-root-password
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
     volumes:
       - master-thesis-minio-data:/data
     networks:
@@ -42,13 +42,13 @@ services:
 
   postgres:
     image: postgres
-    container_name: postgres
+    container_name: postgres-${ENV_NAME}
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_PASSWORD: master-thesis-db-password
-      POSTGRES_USER: master-thesis-db-user
-      POSTGRES_DB: master-thesis-db
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_DB=${POSTGRES_DB}
     volumes:
       - master-thesis-postgres-data:/var/lib/postgresql/data
     networks:

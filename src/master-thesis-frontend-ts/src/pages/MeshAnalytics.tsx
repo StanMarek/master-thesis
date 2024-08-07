@@ -24,6 +24,7 @@ import { SelectedListItem } from '../components/SelectedListItem';
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import { BASE_API_URL } from '../App';
 
 // Styles for the entire page
 const pageStyles = {
@@ -130,7 +131,7 @@ export function MeshAnalytics() {
     if (file) formData.append('file', file);
 
     try {
-      const response = await axios.post('http://localhost:3000/api/file/upload', formData, {
+      const response = await axios.post(`${BASE_API_URL}/file/upload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${await getAccessTokenSilently()}`,

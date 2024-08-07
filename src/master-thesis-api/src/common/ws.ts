@@ -6,6 +6,8 @@ export type SocketEventType = {
   [SocketEventName.KAFKA_CHECK]: string;
   [SocketEventName.CALCULATE_MESH_START]: null;
   [SocketEventName.CALCULATE_MESH_END]: null;
+  [SocketEventName.CALCULATE_MESH_ALREADY_DONE]: null;
+  [SocketEventName.CALCULATE_MESH_FAILED]: string;
 };
 
 export type SocketEventDataType<T> = {
@@ -19,6 +21,8 @@ export enum SocketEventName {
   KAFKA_CHECK = 'client.kafka.check',
   CALCULATE_MESH_START = 'client.mesh.calculate.start',
   CALCULATE_MESH_END = 'client.mesh.calculate.end',
+  CALCULATE_MESH_ALREADY_DONE = 'client.mesh.calculate.already.done',
+  CALCULATE_MESH_FAILED = 'client.mesh.calculate.fail',
 }
 
 export const SocketEvent = {
@@ -44,6 +48,18 @@ export const SocketEvent = {
     eventName: SocketEventName.CALCULATE_MESH_END,
     dataType: {} as SocketEventDataType<
       SocketEventType[SocketEventName.CALCULATE_MESH_END]
+    >,
+  },
+  [SocketEventName.CALCULATE_MESH_ALREADY_DONE]: {
+    eventName: SocketEventName.CALCULATE_MESH_ALREADY_DONE,
+    dataType: {} as SocketEventDataType<
+      SocketEventType[SocketEventName.CALCULATE_MESH_ALREADY_DONE]
+    >,
+  },
+  [SocketEventName.CALCULATE_MESH_FAILED]: {
+    eventName: SocketEventName.CALCULATE_MESH_FAILED,
+    dataType: {} as SocketEventDataType<
+      SocketEventType[SocketEventName.CALCULATE_MESH_FAILED]
     >,
   },
 } as const;

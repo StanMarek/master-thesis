@@ -13,6 +13,8 @@ import { SocketEventName, SocketResponseType } from './util/ws';
 
 export let socket: Socket = io();
 
+export const BASE_API_URL = 'http://127.0.0.1:3000/api';
+
 export function App() {
   const { isAuthenticated, getAccessTokenSilently } = useAuth0();
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -27,7 +29,7 @@ export function App() {
           handleSocketMessage();
         }
         if (!socket || !socket.connected) {
-          socket = io('ws://localhost:3001/ws-events', {
+          socket = io('ws://127.0.0.1:3001/ws-events', {
             autoConnect: true,
             auth: {
               token: `Bearer ${token}`,
@@ -86,6 +88,21 @@ export function App() {
         } else {
           setSnackbarSeverity('error');
           setSnackbarMessage(data.message);
+          setSnackbarOpen(true);
+        }
+      },
+    );
+    socket.on(
+      SocketEventName.CALCULATE_MESH_FAILED,
+      (data: SocketResponseType<SocketEventName.CALCULATE_MESH_FAILED>) => {
+        if (data.status) {
+          setSnackbarSeverity('success');
+          setSnackbarMessage(data.message);
+          setSnackbarOpen(true);
+        } else {
+          setSnackbarSeverity('error');
+          console.log(data);
+          setSnackbarMessage(`${data.message}. ${data.data}`);
           setSnackbarOpen(true);
         }
       },

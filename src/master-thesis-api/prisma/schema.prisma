@@ -36,7 +36,7 @@ model MeshMetadata {
   file           File            @relation(fields: [fileId], references: [id]) // Establishing a relation with File
   fileId         String          @unique // Unique reference to the file
   verticesCount  Int
-  name           String          @unique // Name of the mesh
+  name           String // Name of the mesh
   description    String? // Optional description of the mesh
   createdAt      DateTime        @default(now()) // Timestamp of creation
   updatedAt      DateTime        @updatedAt // Timestamp of last update
