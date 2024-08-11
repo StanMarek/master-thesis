@@ -15,10 +15,7 @@ interface SelectedListItemProps {
 export function SelectedListItem({ onSelect }: SelectedListItemProps) {
   const [selectedIndex, setSelectedIndex] = React.useState(0);
 
-  const handleListItemClick = (
-    event: React.MouseEvent<HTMLDivElement, MouseEvent>,
-    index: number,
-  ) => {
+  const handleListItemClick = (_: React.MouseEvent<HTMLDivElement, MouseEvent>, index: number) => {
     setSelectedIndex(index);
     onSelect(index); // Notify parent of the selection change
   };

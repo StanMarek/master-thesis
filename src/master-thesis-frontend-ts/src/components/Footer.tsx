@@ -2,7 +2,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { Avatar, Box, CircularProgress, Typography } from '@mui/material';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { BASE_API_URL } from '../App';
+import { BASE_API_URL } from '../main';
 
 export function Footer() {
   const { isAuthenticated, user } = useAuth0();

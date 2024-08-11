@@ -10,10 +10,9 @@ import MeshPage from './pages/Mesh';
 import { MeshAnalytics } from './pages/MeshAnalytics';
 import { Profile } from './pages/Profile';
 import { SocketEventName, SocketResponseType } from './util/ws';
+import { BASE_WS_URL } from './main';
 
 export let socket: Socket = io();
-
-export const BASE_API_URL = 'http://127.0.0.1:3000/api';
 
 export function App() {
   const { isAuthenticated, getAccessTokenSilently } = useAuth0();
@@ -29,12 +28,13 @@ export function App() {
           handleSocketMessage();
         }
         if (!socket || !socket.connected) {
-          socket = io('ws://127.0.0.1:3001/ws-events', {
+          socket = io(BASE_WS_URL, {
             autoConnect: true,
             auth: {
               token: `Bearer ${token}`,
             },
           });
+
           handleSocketMessage();
         }
       }
@@ -43,66 +43,69 @@ export function App() {
   }, [isAuthenticated, getAccessTokenSilently]);
 
   function handleSocketMessage() {
-    socket.on(SocketEventName.CONNECTED, (data: SocketResponseType<SocketEventName.CONNECTED>) => {
-      if (data.status) {
-        setSnackbarSeverity('success');
-        setSnackbarMessage(`Connected to WebSocket server. ClientID: ${data.data.clientId}`);
-        setSnackbarOpen(true);
-      }
-    });
+    socket.on(
+      SocketEventName.CONNECTED,
+      (payload: SocketResponseType<SocketEventName.CONNECTED>) => {
+        if (payload.status) {
+          setSnackbarSeverity('success');
+          setSnackbarMessage(`Connected to WebSocket server. ClientID: ${payload.data.clientId}`);
+          setSnackbarOpen(true);
+        }
+      },
+    );
     socket.on(
       SocketEventName.KAFKA_CHECK,
-      (data: SocketResponseType<SocketEventName.KAFKA_CHECK>) => {
-        if (data.status) {
+      (payload: SocketResponseType<SocketEventName.KAFKA_CHECK>) => {
+        if (payload.status) {
           setSnackbarSeverity('success');
-          setSnackbarMessage(data.message);
+          setSnackbarMessage(payload.message);
           setSnackbarOpen(true);
         } else {
           setSnackbarSeverity('error');
-          setSnackbarMessage(data.message);
+          setSnackbarMessage(payload.message);
           setSnackbarOpen(true);
         }
       },
     );
     socket.on(
       SocketEventName.CALCULATE_MESH_START,
-      (data: SocketResponseType<SocketEventName.CALCULATE_MESH_START>) => {
-        if (data.status) {
+      (payload: SocketResponseType<SocketEventName.CALCULATE_MESH_START>) => {
+        if (payload.status) {
           setSnackbarSeverity('success');
-          setSnackbarMessage(data.message);
+          setSnackbarMessage(payload.message);
           setSnackbarOpen(true);
         } else {
           setSnackbarSeverity('error');
-          setSnackbarMessage(data.message);
+          setSnackbarMessage(payload.message);
           setSnackbarOpen(true);
         }
       },
     );
     socket.on(
       SocketEventName.CALCULATE_MESH_END,
-      (data: SocketResponseType<SocketEventName.CALCULATE_MESH_END>) => {
-        if (data.status) {
+      (payload: SocketResponseType<SocketEventName.CALCULATE_MESH_END>) => {
+        if (payload.status) {
           setSnackbarSeverity('success');
-          setSnackbarMessage(data.message);
+          setSnackbarMessage(payload.message);
           setSnackbarOpen(true);
         } else {
           setSnackbarSeverity('error');
-          setSnackbarMessage(data.message);
+          setSnackbarMessage(payload.message);
           setSnackbarOpen(true);
         }
       },
     );
     socket.on(
       SocketEventName.CALCULATE_MESH_FAILED,
-      (data: SocketResponseType<SocketEventName.CALCULATE_MESH_FAILED>) => {
-        if (data.status) {
+      (payload: SocketResponseType<SocketEventName.CALCULATE_MESH_FAILED>) => {
+        if (payload.status) {
           setSnackbarSeverity('success');
-          setSnackbarMessage(data.message);
+          setSnackbarMessage(payload.message);
           setSnackbarOpen(true);
         } else {
           setSnackbarSeverity('error');
-          console.log(data);
-          setSnackbarMessage(`${data.message}. ${data.data}`);
+          console.log(payload);
+          setSnackbarMessage(`${payload.message}. ${payload.data}`);
           setSnackbarOpen(true);
         }
       },

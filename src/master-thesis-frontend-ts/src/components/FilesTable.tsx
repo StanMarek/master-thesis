@@ -26,7 +26,7 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { BASE_API_URL } from '../App';
+import { BASE_API_URL } from '../main';
 
 // Define the type for file data
 interface FilesData {
@@ -295,11 +295,15 @@ export function FilesTable({ refresh }: { refresh: boolean }) {
   const handleCalculateMesh = async () => {
     if (selectedFile) {
       try {
-        const response = await axios.get(`${BASE_API_URL}/mesh/calculate/${selectedFile.id}`, {
-          headers: {
-            Authorization: `Bearer ${await getAccessTokenSilently()}`,
+        const response = await axios.post(
+          `${BASE_API_URL}/mesh/calculate/${selectedFile.id}`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${await getAccessTokenSilently()}`,
+            },
           },
-        });
+        );
         console.log('File calculated successfully:', response.data);
         handleDialogClose();
       } catch (error) {

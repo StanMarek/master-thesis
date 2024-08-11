@@ -4,20 +4,27 @@ import { UpdateMeshDto } from './dto/update-mesh.dto';
 import { UserDTO } from 'src/user/dto/user.dto';
 import { DBClientService } from 'src/db-client/db-client.service';
 import { OnEvent } from '@nestjs/event-emitter';
-import { File, Prisma } from '@prisma/client';
+import { File, MeshCommodityTag, Prisma } from '@prisma/client';
 import { BlobStorageService } from 'src/blob-storage/blob-storage.service';
 import internal from 'stream';
 import { chunkArray } from 'src/common/util/chunk-array';
 import { SocketService } from 'src/socket/socket.service';
 import { SocketEventName } from 'src/common/ws';
+import {
+  dataConstants,
+  dataConstantsName,
+  dataConstantsTagMap,
+} from 'src/common/const';
+import { streamToBuffer } from 'src/common/util/stream-to-buffer';
+import { MeshCalculationService } from './mesh-calculation.service';
 
 @Injectable()
 export class MeshService {
   constructor(
     @Inject(DBClientService) private readonly dbClientService: DBClientService,
-    @Inject(BlobStorageService)
-    private readonly blobStorageService: BlobStorageService,
     @Inject(SocketService) private readonly socketService: SocketService,
+    @Inject(MeshCalculationService)
+    private readonly meshCalculationService: MeshCalculationService,
   ) {}
 
   create(createMeshDto: CreateMeshDto) {
@@ -30,7 +37,7 @@ export class MeshService {
         owner: user.sub,
       },
       include: {
-        meshCommodites: true,
+        meshCommodities: true,
       },
     });
 
@@ -41,15 +48,42 @@ export class MeshService {
         description: m.description,
         createdAt: m.createdAt,
         verticesCount: m.verticesCount,
-        commodities: m.meshCommodites
+        commodities: m.meshCommodities
           .filter((mc) => mc.visible)
           .map((mc) => mc.name),
       };
     });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} mesh`;
+  async findOne(id: string, user: UserDTO) {
+    return this.dbClientService.meshMetadata.findUnique({
+      where: {
+        id,
+        owner: user.sub,
+      },
+      include: {
+        meshCommodities: {
+          where: {
+            visible: true,
+          },
+        },
+      },
+    });
+  }
+
+  async findVertices(id: string, user: UserDTO) {
+    const mesh = await this.dbClientService.meshMetadata.findUnique({
+      where: {
+        id,
+        owner: user.sub,
+      },
+    });
+
+    return this.dbClientService.meshVertice.findMany({
+      where: {
+        meshId: mesh.id,
+      },
+    });
   }
 
   update(id: number, updateMeshDto: UpdateMeshDto) {
@@ -62,94 +96,8 @@ export class MeshService {
 
   @OnEvent('client.mesh.calculate.start')
   async calculateMesh(payload: { file: File; user: UserDTO }) {
-    const { file, user } = payload;
-
     try {
-      const blob = await this.blobStorageService.getFile(file.path);
-
-      async function stream2buffer(stream: internal.Readable): Promise<Buffer> {
-        return new Promise<Buffer>((resolve, reject) => {
-          const _buf = Array<any>();
-
-          stream.on('data', (chunk) => _buf.push(chunk));
-          stream.on('end', () => resolve(Buffer.concat(_buf)));
-          stream.on('error', (err) =>
-            reject(`error converting stream - ${err}`),
-          );
-        });
-      }
-
-      const buffer = await stream2buffer(blob);
-      const parsedBuffer = buffer.toString().split('\n');
-
-      const dataMapping = parsedBuffer
-        .map((line, index) => {
-          let isVtkLine = false;
-          const split = line
-            .trim()
-            .split(' ')
-            .filter((item) => item !== ' ' && item !== '')
-            .forEach((item) => {
-              if (!Number(item) && Number(item) !== 0) isVtkLine = true;
-            });
-
-          if (isVtkLine) return { lineNumber: index, line };
-        })
-        .filter(Boolean)
-        .map((item, index) => {
-          return { ...item, itemIndex: index };
-        });
-
-      const pointsStartIndex = dataMapping.find((item) =>
-        item.line.startsWith('POINTS'),
-      );
-      const pointsEndIndex = dataMapping.at(
-        dataMapping.indexOf(pointsStartIndex) + 1,
-      );
-
-      // const pointsEndIndex = dataMapping.find((item) => item.index).index;
-      const pointsCoordinates = chunkArray(
-        parsedBuffer
-          .slice(pointsStartIndex.lineNumber + 1, pointsEndIndex.lineNumber)
-          .flatMap((line) => {
-            return line
-              .trim()
-              .split(' ')
-              .filter((line) => line !== ' ' && line !== '')
-              .map((item) => Number(item));
-          }),
-      ).map((chunk) => {
-        return {
-          x: chunk[0],
-          y: chunk[1],
-          z: chunk[2],
-        };
-      });
-
-      const mesh = await this.dbClientService.meshMetadata.create({
-        data: {
-          name: file.name,
-          owner: user.sub,
-          verticesCount: pointsCoordinates.length,
-          file: {
-            connect: {
-              id: file.id,
-            },
-          },
-        },
-      });
-
-      const meshCommoditiesCreateManyInput: Prisma.MeshCommodityCreateManyInput[] =
-        dataMapping.map((d) => ({
-          meshId: mesh.id,
-          fileLineIndex: d.lineNumber,
-          name: d.line,
-        }));
-
-      await this.dbClientService.meshCommodity.createMany({
-        data: meshCommoditiesCreateManyInput,
-      });
-
+      await this.meshCalculationService.calculate(payload.file, payload.user);
       this.socketService.emit(
         SocketEventName.CALCULATE_MESH_END,
         {
@@ -157,7 +105,7 @@ export class MeshService {
           message: 'Mesh calculated successfully',
           data: null,
         },
-        user.sub,
+        payload.user.sub,
       );
     } catch (error) {
       Logger.error(error);
@@ -168,7 +116,7 @@ export class MeshService {
           message: 'Mesh calculation failed',
           data: error.toString(),
         },
-        user.sub,
+        payload.user.sub,
       );
     }
   }

@@ -85,8 +85,8 @@ export class FileService {
     });
   }
 
-  updateFile(user: UserDTO, id: string, updateFileDTO: UpdateFileDTO) {
-    return this.dbClientService.file.update({
+  async updateFile(user: UserDTO, id: string, updateFileDTO: UpdateFileDTO) {
+    const file = await this.dbClientService.file.update({
       where: {
         id,
         owner: user.sub,
@@ -97,6 +97,18 @@ export class FileService {
         description: updateFileDTO.description,
       },
     });
+
+    await this.dbClientService.meshMetadata.update({
+      where: {
+        owner: user.sub,
+        fileId: id,
+      },
+      data: {
+        name: updateFileDTO.name,
+      },
+    });
+
+    return file;
   }
 
   deleteFile(user: UserDTO, id: string) {

@@ -9,6 +9,8 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
     ports:
       - 22181:2181
+    networks:
+      - master-thesis-network
   
   kafka:
     image: confluentinc/cp-kafka:7.4.4
@@ -24,6 +26,8 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - master-thesis-network
 
   minio:
     image: minio/minio:latest
@@ -64,13 +68,10 @@ services:
       context: ./master-thesis-api
       dockerfile: Dockerfile
     ports:
+      - "3000:3000"
       - "3001:3001"
     networks:
       - master-thesis-network
-    links:
-      - postgres
-      - minio
-      - kafka
 
   frontend:
     container_name: frontend-${ENV_NAME_FULL}
@@ -80,7 +81,7 @@ services:
       context: ./master-thesis-frontend-ts
       dockerfile: Dockerfile
     ports:
-      - "5173:5173"
+      - "8080:80"
     networks:
       - master-thesis-network
     

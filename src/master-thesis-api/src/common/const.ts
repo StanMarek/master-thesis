@@ -1,3 +1,5 @@
+import { MeshCommodityTag } from '@prisma/client';
+
 export const REQUIRED_ENVS = [
   'KAFKA_BROKER',
   'KAFKA_CLIENT_ID',
@@ -13,3 +15,48 @@ export const REQUIRED_ENVS = [
 ] as const;
 
 export const BUCKET_DEFAUlT_NAME = 'mesh-vtk-files';
+
+export const dataConstants = [
+  'POINTS',
+  'DISPLACEMENT',
+  'SCALARS TEMPERATURE double',
+  'SCALARS EQ_STRESS double',
+  'EQ_STRAIN',
+  'NORMALSTRESS',
+  'STRESSTENSOR_XX',
+  'STRESSTENSOR_YY',
+  'STRESSTENSOR_ZZ',
+  'STRESSTENSOR_XY',
+  'STRESSTENSOR_YZ',
+  'STRESSTENSOR_XZ',
+] as const;
+
+export const dataConstantsName = [
+  'POINTS',
+  'DISPLACEMENT',
+  'TEMPERATURE',
+  'EQ_STRESS',
+  'EQ_STRAIN',
+  'NORMALSTRESS',
+  'STRESSTENSOR_XX',
+  'STRESSTENSOR_YY',
+  'STRESSTENSOR_ZZ',
+  'STRESSTENSOR_XY',
+  'STRESSTENSOR_YZ',
+  'STRESSTENSOR_XZ',
+] as const;
+
+export const dataConstantsTagMap = {
+  POINTS: MeshCommodityTag.POINTS,
+  DISPLACEMENT: MeshCommodityTag.DISPLACEMENT,
+  TEMPERATURE: MeshCommodityTag.TEMPERATURE,
+  EQ_STRESS: MeshCommodityTag.EQ_STRESS,
+  EQ_STRAIN: MeshCommodityTag.EQ_STRAIN,
+  NORMALSTRESS: MeshCommodityTag.NORMALSTRESS,
+  STRESSTENSOR_XX: MeshCommodityTag.STRESSTENSOR,
+  STRESSTENSOR_YY: MeshCommodityTag.STRESSTENSOR,
+  STRESSTENSOR_ZZ: MeshCommodityTag.STRESSTENSOR,
+  STRESSTENSOR_XY: MeshCommodityTag.STRESSTENSOR,
+  STRESSTENSOR_YZ: MeshCommodityTag.STRESSTENSOR,
+  STRESSTENSOR_XZ: MeshCommodityTag.STRESSTENSOR,
+} as const;

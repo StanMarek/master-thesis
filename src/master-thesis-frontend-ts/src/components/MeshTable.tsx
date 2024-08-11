@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { BASE_API_URL } from '../App';
+import { BASE_API_URL } from '../main';
 
 // Define the type for file data
 interface MeshesData {

@@ -24,7 +24,7 @@ import { SelectedListItem } from '../components/SelectedListItem';
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
-import { BASE_API_URL } from '../App';
+import { BASE_API_URL } from '../main';
 
 // Styles for the entire page
 const pageStyles = {
@@ -167,9 +167,9 @@ export function MeshAnalytics() {
   };
 
   const handleRefresh = () => {
-    localStorage.removeItem('filesTableData'); // Clear cache
-    localStorage.removeItem('meshTableData'); // Clear cache
-    setRefresh((prev) => !prev); // Trigger refresh to fetch new data
+    localStorage.removeItem('filesTableData');
+    localStorage.removeItem('meshTableData');
+    setRefresh((prev) => !prev);
   };
 
   return (

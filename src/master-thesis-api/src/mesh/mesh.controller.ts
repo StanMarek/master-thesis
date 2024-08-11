@@ -35,7 +35,7 @@ export class MeshController {
   }
 
   @UseGuards(AuthGuard('jwt'))
-  @Get('calculate/:id')
+  @Post('calculate/:id')
   async calculateCommodities(@User() user: UserDTO, @Param('id') id: string) {
     const file = await this.fileService.getFile(user, id);
 
@@ -73,9 +73,20 @@ export class MeshController {
     return this.meshService.findAll(user);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.meshService.findOne(+id);
+  async findOne(@User() user: UserDTO, @Param('id') id: string) {
+    const mesh = await this.meshService.findOne(id, user);
+
+    return mesh;
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get(':id/vertices')
+  async findVertices(@User() user: UserDTO, @Param('id') id: string) {
+    const vertices = await this.meshService.findVertices(id, user);
+
+    return vertices;
   }
 
   @Patch(':id')
