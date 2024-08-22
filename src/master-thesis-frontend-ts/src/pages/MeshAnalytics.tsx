@@ -7,23 +7,15 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  IconButton,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
   Snackbar,
-  Typography,
 } from '@mui/material';
 import axios from 'axios';
 import { useState } from 'react';
-import { useDropzone } from 'react-dropzone';
 import { FilesTable } from '../components/FilesTable';
 import { MeshTable } from '../components/MeshTable';
 import { SelectedListItem } from '../components/SelectedListItem';
 
-import DeleteIcon from '@mui/icons-material/Delete';
-import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import { DropzoneArea } from '../components/Dropzone';
 import { BASE_API_URL } from '../main';
 
 // Styles for the entire page
@@ -125,38 +117,87 @@ export function MeshAnalytics() {
     setFile(null);
   };
 
-  const handleUpload = async () => {
-    const formData = new FormData();
+  // const handleUpload = async () => {
+  //   const formData = new FormData();
 
-    if (file) formData.append('file', file);
+  //   if (file) formData.append('file', file);
+
+  //   try {
+  //     const response = await axios.post(`${BASE_API_URL}/file/upload`, formData, {
+  //       headers: {
+  //         'Content-Type': 'multipart/form-data',
+  //         Authorization: `Bearer ${await getAccessTokenSilently()}`,
+  //       },
+  //     });
+  //     console.log('Files uploaded successfully:', response.data);
+
+  //     if (response.data.status) {
+  //       setSnackbarMessage(response.data.message);
+  //       setSnackbarSeverity('success');
+  //       setSnackbarOpen(true);
+  //       handleCloseDialog();
+  //     } else {
+  //       setSnackbarMessage('Failed to upload files.');
+  //       setSnackbarSeverity('error');
+  //       setSnackbarOpen(true);
+  //     }
+
+  //     handleRefresh();
+  //     handleCloseDialog();
+  //   } catch (error: any) {
+  //     console.error('Error uploading files:', error);
+  //     setSnackbarMessage(
+  //       `An error occurred during upload. ${error.response?.data?.message} ${error.response?.data?.error}`,
+  //     );
+  //     setSnackbarSeverity('error');
+  //     setSnackbarOpen(true);
+  //   }
+  // };
+
+  const handleUpload = async () => {
+    if (!file) return;
+
+    const CHUNK_SIZE = 1 * 1024 * 1024; // 1MB
+    const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+
+    const uploadChunk = async (chunk: Blob, chunkIndex: number) => {
+      const formData = new FormData();
+      formData.append('file', chunk);
+      formData.append('filename', file.name);
+      formData.append('chunkIndex', String(chunkIndex));
+      formData.append('totalChunks', String(totalChunks));
+
+      try {
+        const response = await axios.post(`${BASE_API_URL}/file/upload`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${await getAccessTokenSilently()}`,
+          },
+        });
+
+        return response.data;
+      } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Chunk upload failed');
+      }
+    };
 
     try {
-      const response = await axios.post(`${BASE_API_URL}/file/upload`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${await getAccessTokenSilently()}`,
-        },
-      });
-      console.log('Files uploaded successfully:', response.data);
+      for (let i = 0; i < totalChunks; i++) {
+        const chunk = file.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
+        const { status, message } = await uploadChunk(chunk, i);
 
-      if (response.data.status) {
-        setSnackbarMessage(response.data.message);
-        setSnackbarSeverity('success');
+        const progress = Math.round(((i + 1) / totalChunks) * 100);
+        console.log(`Upload progress: ${progress}%`);
+        setSnackbarMessage(message);
+        setSnackbarSeverity(status ? 'success' : 'error');
         setSnackbarOpen(true);
         handleCloseDialog();
-      } else {
-        setSnackbarMessage('Failed to upload files.');
-        setSnackbarSeverity('error');
-        setSnackbarOpen(true);
       }
 
       handleRefresh();
-      handleCloseDialog();
     } catch (error: any) {
       console.error('Error uploading files:', error);
-      setSnackbarMessage(
-        `An error occurred during upload. ${error.response?.data?.message} ${error.response?.data?.error}`,
-      );
+      setSnackbarMessage(`An error occurred during upload. ${error.message}`);
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
     }
@@ -231,53 +272,6 @@ export function MeshAnalytics() {
           {snackbarMessage}
         </Alert>
       </Snackbar>
-    </Box>
-  );
-}
-
-function DropzoneArea({
-  onDrop,
-  file,
-  onRemoveFile,
-}: {
-  onDrop: (acceptedFile: File) => void;
-  file: File;
-  onRemoveFile: (fileName: string) => void;
-}) {
-  const { getRootProps, getInputProps } = useDropzone({
-    onDrop: (acceptedFiles) => {
-      onDrop(acceptedFiles[0]);
-    },
-    // accept: 'image/*,application/pdf',
-  });
-
-  return (
-    <Box>
-      <Box {...getRootProps()} sx={pageStyles.dropzone}>
-        <input {...getInputProps()} />
-        <Typography variant="body1">Drag & drop files here, or click to select files</Typography>
-        <Typography variant="body2" sx={pageStyles.dropzoneText}>
-          (Only VTK will be accepted)
-        </Typography>
-      </Box>
-      {file && (
-        <List sx={pageStyles.fileList}>
-          {[file].map((file) => (
-            <ListItem key={file!.name} sx={pageStyles.listItem}>
-              <ListItemIcon>
-                <InsertDriveFileIcon />
-              </ListItemIcon>
-              <ListItemText
-                primary={file?.name}
-                secondary={`${(file?.size / 1024).toFixed(2)} KB`}
-              />
-              <IconButton edge="end" onClick={() => onRemoveFile(file?.name)}>
-                <DeleteIcon />
-              </IconButton>
-            </ListItem>
-          ))}
-        </List>
-      )}
     </Box>
   );
 }

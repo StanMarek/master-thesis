@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -29,6 +30,8 @@ import internal from 'stream';
 import { UpdateFileDTO } from './dto/update-file.dto';
 import { FileService } from './file.service';
 import { SocketEventName } from 'src/common/ws';
+import * as path from 'path';
+import * as fs from 'fs';
 
 @Controller('file')
 export class FileController {
@@ -72,46 +75,138 @@ export class FileController {
     return file;
   }
 
+  // @UseGuards(AuthGuard('jwt'))
+  // @Post('upload')
+  // @UseInterceptors(FileInterceptor('file'))
+  // async uploadFile(
+  //   @User() user: UserDTO,
+  //   @Body() uploadFileDto: UploadFileDTO,
+  //   @UploadedFile(
+  //     new ParseFilePipeBuilder()
+  //       .addFileTypeValidator({ fileType: 'application/octet-stream' })
+  //       .build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY }),
+  //   )
+  //   file: Express.Multer.File,
+  // ) {
+  //   if (!file) return { status: false, message: 'No file uploaded' };
+  //   if (file.originalname.split('.').pop() !== 'vtk')
+  //     return {
+  //       status: false,
+  //       message: 'Invalid file type - required .vtk file',
+  //     };
+
+  //   try {
+  //     const createdFileMetadata = await this.fileService.createFile(
+  //       user,
+  //       uploadFileDto,
+  //       file,
+  //     );
+
+  //     await this.blobStorageService.putFile(createdFileMetadata.path, file);
+  //   } catch (error) {
+  //     Logger.error(error);
+  //     return {
+  //       status: false,
+  //       message: 'Error uploading file',
+  //     };
+  //   }
+
+  //   return {
+  //     status: true,
+  //     message: 'File uploaded successfully',
+  //   };
+  // }
+
   @UseGuards(AuthGuard('jwt'))
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
-  async uploadFile(
+  async uploadChunkedFile(
     @User() user: UserDTO,
     @Body() uploadFileDto: UploadFileDTO,
     @UploadedFile(
       new ParseFilePipeBuilder()
-        .addFileTypeValidator({ fileType: 'application/octet-stream' })
+        .addFileTypeValidator({
+          fileType: 'application/octet-stream',
+        })
         .build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY }),
     )
     file: Express.Multer.File,
   ) {
     if (!file) return { status: false, message: 'No file uploaded' };
-    if (file.originalname.split('.').pop() !== 'vtk')
-      return {
+    const filename = uploadFileDto.filename;
+    file.originalname = filename;
+
+    if (filename.split('.').pop() !== 'vtk')
+      throw new BadRequestException({
         status: false,
         message: 'Invalid file type - required .vtk file',
-      };
+      });
 
     try {
-      const createdFileMetadata = await this.fileService.createFile(
-        user,
-        uploadFileDto,
-        file,
-      );
+      const chunkIndex = parseInt(uploadFileDto.chunkIndex);
+      const totalChunks = parseInt(uploadFileDto.totalChunks);
 
-      await this.blobStorageService.putFile(createdFileMetadata.path, file);
+      const tempDir = path.join(__dirname, '/uploads/tmp', user.sub.toString());
+
+      if (!fs.existsSync(tempDir)) {
+        fs.mkdirSync(tempDir, { recursive: true });
+      }
+
+      const chunkPath = path.join(tempDir, `${filename}.part${chunkIndex}`);
+      fs.writeFileSync(chunkPath, file.buffer);
+
+      if (chunkIndex === totalChunks - 1) {
+        const finalFilePath = path.join(tempDir, filename);
+
+        const writeStream = fs.createWriteStream(finalFilePath);
+
+        for (let i = 0; i < totalChunks; i++) {
+          const chunkFilePath = path.join(tempDir, `${filename}.part${i}`);
+          const chunk = fs.readFileSync(chunkFilePath);
+          writeStream.write(chunk);
+
+          fs.unlinkSync(chunkFilePath);
+        }
+
+        await new Promise<void>((resolve, reject) => {
+          writeStream.end();
+          writeStream.on('finish', resolve);
+          writeStream.on('error', reject);
+        });
+
+        const fileBuffer = fs.readFileSync(finalFilePath);
+        const fileMetadata = await this.fileService.createFile(
+          user,
+          uploadFileDto,
+          fileBuffer,
+          file,
+        );
+
+        await this.blobStorageService.putFile(
+          fileMetadata.path,
+          fileBuffer,
+          file,
+        );
+
+        fs.unlinkSync(finalFilePath);
+
+        return {
+          status: true,
+          message: 'File uploaded and assembled successfully',
+        };
+      }
+
+      return {
+        status: true,
+        message: `Chunk ${chunkIndex + 1} of ${totalChunks} uploaded successfully`,
+      };
     } catch (error) {
       Logger.error(error);
       return {
         status: false,
-        message: 'Error uploading file',
+        message: 'Error uploading file chunk',
       };
     }
-
-    return {
-      status: true,
-      message: 'File uploaded successfully',
-    };
   }
 
   @UseGuards(AuthGuard('jwt'))

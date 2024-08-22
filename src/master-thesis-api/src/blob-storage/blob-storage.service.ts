@@ -47,6 +47,7 @@ export class BlobStorageService implements OnModuleInit {
 
   async putFile(
     fileName: string,
+    buffer: Buffer,
     file: Express.Multer.File,
     bucketName = BUCKET_DEFAUlT_NAME,
   ) {
@@ -57,8 +58,8 @@ export class BlobStorageService implements OnModuleInit {
     }
 
     const contentType = file.mimetype;
-    const fileSize = file.size;
-    await this.client.putObject(bucketName, fileName, file.buffer, fileSize, {
+    const fileSize = buffer.byteLength;
+    await this.client.putObject(bucketName, fileName, buffer, fileSize, {
       'Content-Type': contentType,
     });
 

@@ -63,6 +63,7 @@ export class FileService {
   createFile(
     user: UserDTO,
     uploadFileDto: UploadFileDTO,
+    buffer: Buffer,
     file: Express.Multer.File,
   ) {
     const filePath = `${user.sub}/${new Date().getTime()}-${file.originalname
@@ -75,7 +76,7 @@ export class FileService {
         name: file.originalname,
         originalName: file.originalname,
         format: file.originalname.split('.').pop(),
-        size: file.size,
+        size: buffer.byteLength,
         owner: user.sub,
         type: file.mimetype,
         path: filePath,
