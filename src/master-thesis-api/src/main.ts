@@ -17,15 +17,15 @@ async function bootstrap() {
   checkEnvs(REQUIRED_ENVS);
 
   // TEMP DISABLE KAFKA
-  // app.connectMicroservice<MicroserviceOptions>({
-  //   transport: Transport.KAFKA,
-  //   options: {
-  //     client: {
-  //       brokers: [KAFKA_BROKER],
-  //       clientId: KAFKA_CLIENT_ID,
-  //     },
-  //   },
-  // });
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.KAFKA,
+    options: {
+      client: {
+        brokers: [KAFKA_BROKER],
+        clientId: KAFKA_CLIENT_ID,
+      },
+    },
+  });
 
   app.enableCors({
     origin: '*',

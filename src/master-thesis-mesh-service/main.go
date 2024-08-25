@@ -1,10 +1,16 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"mesh-service/kafka"
+	"log"
+	"mesh-service/internal/api"
+	"mesh-service/internal/api/file"
+	"mesh-service/internal/api/mesh"
+	"mesh-service/internal/api/middleware"
+
 	"net/http"
+
+	"github.com/joho/godotenv"
 )
 
 const (
@@ -12,89 +18,36 @@ const (
 )
 
 func main() {
-	producer := kafka.NewProducer()
-	defer producer.Close()
-
-	kafkaHandler := &KafkaHandler{
-		Producer: producer,
-		Topic:    KafkaTestTopic,
+	if err := godotenv.Load(); err != nil {
+		log.Fatalf("Error loading the .env file: %v", err)
 	}
 
-	mux := http.NewServeMux()
+	router := http.NewServeMux()
 
-	mux.Handle("/api/health-check", &HomeHandler{})
-	mux.Handle("/api/kafka-check", kafkaHandler)
+	router.Handle("/api/health-check", &api.HomeHandler{})
+	// router.Handle("/api/kafka-check", kafkaHandler)
+
+	// router.Handle("/api/private", middleware.EnsureValidToken()(
+	// 	http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+	// 		w.Header().Set("Content-Type", "application/json")
+	// 		w.WriteHeader(http.StatusOK)
+	// 		w.Write([]byte(`{"message":"Hello from a private endpoint! You need to be authenticated to see this."}`))
+	// 	}),
+	// ))
+
+	router.Handle("/api/file/upload", middleware.EnableCors((middleware.EnsureValidToken()(
+		http.HandlerFunc(file.UploadChunkedFile),
+	))))
+
+	router.Handle("/api/mesh/calculate", middleware.EnsureValidToken()(
+		http.HandlerFunc(mesh.Calculate),
+	))
 
 	fmt.Println("Starting server on port 8080")
-	http.ListenAndServe(":8080", mux)
-}
-
-type HomeHandler struct {
-}
-
-type KafkaHandler struct {
-	Producer *kafka.Producer
-	Topic    string
-}
-
-type ApiHealth struct {
-	Status bool `json:"status"`
-}
-
-func (handler *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
-	status := ApiHealth{
-		Status: true,
+	http.ListenAndServe(":8080", router)
+	log.Print("Server listening on http://localhost:8080")
+	if err := http.ListenAndServe("0.0.0.0:8080", router); err != nil {
+		log.Fatalf("There was an error with the http server: %v", err)
 	}
-
-	bytes, err := json.Marshal(status)
-
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Internal server error"))
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(bytes)
-}
-
-func (handler *KafkaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	producer := handler.Producer
-
-	sub := r.URL.Query().Get("clientId")
-
-	for i := 0; i < 10; i++ {
-		testStruct := kafka.TestStruct{
-			ID:   i,
-			Name: "Test",
-			Sub:  sub,
-		}
-
-		message, err := json.Marshal(testStruct)
-
-		if err != nil {
-			panic(err)
-		}
-
-		kafka.PublishMessage(producer, KafkaTestTopic, message)
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-
-	status := ApiHealth{
-		Status: true,
-	}
-
-	bytes, err := json.Marshal(status)
-
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Internal server error"))
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(bytes)
 }

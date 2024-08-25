@@ -20,9 +20,12 @@ export enum SocketEventName {
   CONNECTED = 'client.socket.connect',
   KAFKA_CHECK = 'client.kafka.check',
   CALCULATE_MESH_START = 'client.mesh.calculate.start',
+  CALCULATE_MESH_START_KAFKA = 'client.mesh.calculate.start.kafka',
   CALCULATE_MESH_END = 'client.mesh.calculate.end',
+  CALCULATE_MESH_END_KAFKA = 'client.mesh.calculate.end.kafka',
   CALCULATE_MESH_ALREADY_DONE = 'client.mesh.calculate.already.done',
   CALCULATE_MESH_FAILED = 'client.mesh.calculate.fail',
+  CALCULATE_MESH_FAILED_KAFKA = 'client.mesh.calculate.fail.kafka',
 }
 
 export const SocketEvent = {

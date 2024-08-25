@@ -1,7 +1,7 @@
-import { Controller, Inject } from '@nestjs/common';
+import { Controller, Inject, Logger } from '@nestjs/common';
 import { KafkaService } from './kafka.service';
 import { EventPattern, Payload, Transport } from '@nestjs/microservices';
-import { KafkaTopic } from 'src/common/enum';
+import { KafkaEventName } from 'src/common/kafka';
 
 @Controller()
 export class KafkaController {
@@ -9,8 +9,13 @@ export class KafkaController {
     @Inject(KafkaService) private readonly kafkaService: KafkaService,
   ) {}
 
-  @EventPattern(KafkaTopic.KAFKA_CHECK, Transport.KAFKA)
+  @EventPattern(KafkaEventName.KAFKA_CHECK, Transport.KAFKA)
   checkKafka(@Payload() payload: any) {
     this.kafkaService.handleTestMessage(payload);
+  }
+
+  @EventPattern('mesh.calculated', Transport.KAFKA)
+  handleMeshCalculated(@Payload() payload: any) {
+    Logger.log('Mesh calculated', payload);
   }
 }

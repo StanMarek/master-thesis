@@ -17,6 +17,7 @@ import {
 } from 'src/common/const';
 import { streamToBuffer } from 'src/common/util/stream-to-buffer';
 import { MeshCalculationService } from './mesh-calculation.service';
+import axios from 'axios';
 
 @Injectable()
 export class MeshService {
@@ -107,6 +108,62 @@ export class MeshService {
         },
         payload.user.sub,
       );
+    } catch (error) {
+      Logger.error(error);
+      this.socketService.emit(
+        SocketEventName.CALCULATE_MESH_FAILED,
+        {
+          status: false,
+          message: 'Mesh calculation failed',
+          data: error.toString(),
+        },
+        payload.user.sub,
+      );
+    }
+  }
+
+  @OnEvent('client.mesh.calculate.start.kafka')
+  async calculateMeshKafka(payload: {
+    file: File;
+    user: UserDTO;
+    token: string;
+  }) {
+    try {
+      const response = await axios.post(
+        'http://localhost:8080/api/mesh/calculate',
+        {
+          fileId: payload.file.id,
+          sub: payload.user.sub,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${payload.token}`,
+          },
+        },
+      );
+
+      if (response.status === 200) {
+        this.socketService.emit(
+          SocketEventName.CALCULATE_MESH_START,
+          {
+            status: true,
+            message: 'Mesh calculation started',
+            data: null,
+          },
+          payload.user.sub,
+        );
+      } else {
+        this.socketService.emit(
+          SocketEventName.CALCULATE_MESH_FAILED,
+          {
+            status: false,
+            message: 'Mesh calculation failed',
+            data: response.data,
+          },
+          payload.user.sub,
+        );
+      }
     } catch (error) {
       Logger.error(error);
       this.socketService.emit(

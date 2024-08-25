@@ -75,50 +75,55 @@ export class FileController {
     return file;
   }
 
-  // @UseGuards(AuthGuard('jwt'))
-  // @Post('upload')
-  // @UseInterceptors(FileInterceptor('file'))
-  // async uploadFile(
-  //   @User() user: UserDTO,
-  //   @Body() uploadFileDto: UploadFileDTO,
-  //   @UploadedFile(
-  //     new ParseFilePipeBuilder()
-  //       .addFileTypeValidator({ fileType: 'application/octet-stream' })
-  //       .build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY }),
-  //   )
-  //   file: Express.Multer.File,
-  // ) {
-  //   if (!file) return { status: false, message: 'No file uploaded' };
-  //   if (file.originalname.split('.').pop() !== 'vtk')
-  //     return {
-  //       status: false,
-  //       message: 'Invalid file type - required .vtk file',
-  //     };
+  @UseGuards(AuthGuard('jwt'))
+  @Post('upload/v1')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadFile(
+    @User() user: UserDTO,
+    @Body() uploadFileDto: UploadFileDTO,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({ fileType: 'application/octet-stream' })
+        .build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY }),
+    )
+    file: Express.Multer.File,
+  ) {
+    if (!file) return { status: false, message: 'No file uploaded' };
+    if (file.originalname.split('.').pop() !== 'vtk')
+      return {
+        status: false,
+        message: 'Invalid file type - required .vtk file',
+      };
 
-  //   try {
-  //     const createdFileMetadata = await this.fileService.createFile(
-  //       user,
-  //       uploadFileDto,
-  //       file,
-  //     );
+    try {
+      const createdFileMetadata = await this.fileService.createFile(
+        user,
+        uploadFileDto,
+        file.buffer,
+        file,
+      );
 
-  //     await this.blobStorageService.putFile(createdFileMetadata.path, file);
-  //   } catch (error) {
-  //     Logger.error(error);
-  //     return {
-  //       status: false,
-  //       message: 'Error uploading file',
-  //     };
-  //   }
+      await this.blobStorageService.putFile(
+        createdFileMetadata.path,
+        file.buffer,
+        file,
+      );
+    } catch (error) {
+      Logger.error(error);
+      return {
+        status: false,
+        message: 'Error uploading file',
+      };
+    }
 
-  //   return {
-  //     status: true,
-  //     message: 'File uploaded successfully',
-  //   };
-  // }
+    return {
+      status: true,
+      message: 'File uploaded successfully',
+    };
+  }
 
   @UseGuards(AuthGuard('jwt'))
-  @Post('upload')
+  @Post('upload/v2')
   @UseInterceptors(FileInterceptor('file'))
   async uploadChunkedFile(
     @User() user: UserDTO,

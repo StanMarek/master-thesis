@@ -16,7 +16,7 @@ import { MeshTable } from '../components/MeshTable';
 import { SelectedListItem } from '../components/SelectedListItem';
 
 import { DropzoneArea } from '../components/Dropzone';
-import { BASE_API_URL } from '../main';
+import { BASE_API_URL, BASE_MESH_API_URL } from '../main';
 
 // Styles for the entire page
 const pageStyles = {
@@ -168,7 +168,7 @@ export function MeshAnalytics() {
       formData.append('totalChunks', String(totalChunks));
 
       try {
-        const response = await axios.post(`${BASE_API_URL}/file/upload`, formData, {
+        const response = await axios.post(`${BASE_MESH_API_URL}/file/upload`, formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
             Authorization: `Bearer ${await getAccessTokenSilently()}`,

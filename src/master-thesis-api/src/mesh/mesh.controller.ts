@@ -19,6 +19,7 @@ import { User } from 'src/user/user.decorator';
 import { CreateMeshDto } from './dto/create-mesh.dto';
 import { UpdateMeshDto } from './dto/update-mesh.dto';
 import { MeshService } from './mesh.service';
+import { Token } from 'src/user/token.decorator';
 
 @Controller('mesh')
 export class MeshController {
@@ -36,7 +37,11 @@ export class MeshController {
 
   @UseGuards(AuthGuard('jwt'))
   @Post('calculate/:id')
-  async calculateCommodities(@User() user: UserDTO, @Param('id') id: string) {
+  async calculateCommodities(
+    @Token() token: string,
+    @User() user: UserDTO,
+    @Param('id') id: string,
+  ) {
     const file = await this.fileService.getFile(user, id);
 
     if (!file.hasMesh) {
@@ -50,9 +55,14 @@ export class MeshController {
         user.sub,
       );
       // emit event to start mesh calculation
-      this.eventEmitter.emit('client.mesh.calculate.start', {
+      // this.eventEmitter.emit('client.mesh.calculate.start', {
+      //   file,
+      //   user,
+      // });
+      this.eventEmitter.emit('client.mesh.calculate.start.kafka', {
         file,
         user,
+        token,
       });
 
       return {

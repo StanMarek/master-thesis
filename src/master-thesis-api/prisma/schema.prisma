@@ -39,7 +39,7 @@ model MeshMetadata {
   name            String // Name of the mesh
   description     String? // Optional description of the mesh
   createdAt       DateTime        @default(now()) // Timestamp of creation
-  updatedAt       DateTime        @updatedAt // Timestamp of last update
+  updatedAt       DateTime        @default(now()) @updatedAt // Timestamp of last update
   meshCommodities MeshCommodity[]
   vertices        MeshVertice[]
 }
