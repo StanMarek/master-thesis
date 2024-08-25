@@ -110,6 +110,37 @@ export function App() {
         }
       },
     );
+
+    socket.on(
+      SocketEventName.CALCULATE_COMMODITY_START,
+      (payload: SocketResponseType<SocketEventName.CALCULATE_COMMODITY_START>) => {
+        if (payload.status) {
+          setSnackbarSeverity('success');
+          setSnackbarMessage(payload.message);
+          setSnackbarOpen(true);
+        } else {
+          setSnackbarSeverity('error');
+          console.log(payload);
+          setSnackbarMessage(`${payload.message}. ${payload.data}`);
+          setSnackbarOpen(true);
+        }
+      },
+    );
+    socket.on(
+      SocketEventName.CALCULATE_COMMODITY_END,
+      (payload: SocketResponseType<SocketEventName.CALCULATE_COMMODITY_END>) => {
+        if (payload.status) {
+          setSnackbarSeverity('success');
+          setSnackbarMessage(payload.message);
+          setSnackbarOpen(true);
+        } else {
+          setSnackbarSeverity('error');
+          console.log(payload);
+          setSnackbarMessage(`${payload.message}. ${payload.data}`);
+          setSnackbarOpen(true);
+        }
+      },
+    );
   }
 
   const handleSnackbarClose = () => {

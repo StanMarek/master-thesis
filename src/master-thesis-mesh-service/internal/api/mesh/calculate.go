@@ -39,7 +39,7 @@ func Calculate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	kafkaService := kafkaService.NewKafkaService()
-	err = kafkaService.PublishMessage("mesh.calculated", []byte(fmt.Sprintf("sub:%s", dto.Sub)))
+	err = kafkaService.PublishMessage("client.mesh.calculate.end.kafka", []byte(fmt.Sprintf(dto.Sub)))
 
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")

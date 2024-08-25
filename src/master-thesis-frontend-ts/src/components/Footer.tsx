@@ -2,13 +2,15 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { Avatar, Box, CircularProgress, Typography } from '@mui/material';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { BASE_API_URL } from '../main';
+import { BASE_API_URL, BASE_MESH_API_URL } from '../main';
 
 export function Footer() {
   const { isAuthenticated, user } = useAuth0();
   const [apiVersion, setApiVersion] = useState<string>('Unknown');
   const [apiActive, setApiActive] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+  const [meshApiVersion, setMeshApiVersion] = useState<string>('Unknown');
+  const [meshApiActive, setMeshApiActive] = useState<boolean>(false);
 
   useEffect(() => {
     axios
@@ -16,6 +18,17 @@ export function Footer() {
       .then((res) => {
         setApiVersion(res.data.version);
         setApiActive(true);
+      })
+      .catch(() => setApiActive(false))
+      .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    axios
+      .get(`${BASE_MESH_API_URL}/health-check`)
+      .then((res) => {
+        setMeshApiVersion(res.data.version);
+        setMeshApiActive(true);
       })
       .catch(() => setApiActive(false))
       .finally(() => setLoading(false));
@@ -46,6 +59,12 @@ export function Footer() {
           </Typography>
           <Typography variant="body2" sx={{ mb: 2 }}>
             API Status - {apiActive ? 'Active' : 'Inactive'}
+          </Typography>
+          <Typography variant="body2" sx={{ mb: 1 }}>
+            Mesh API Version - {meshApiVersion}
+          </Typography>
+          <Typography variant="body2" sx={{ mb: 2 }}>
+            Mesh API Status - {meshApiActive ? 'Active' : 'Inactive'}
           </Typography>
         </>
       )}

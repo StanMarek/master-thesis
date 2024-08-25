@@ -1,7 +1,11 @@
 import { OrbitControls } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
 
-export const ThreeDCanvas = ({ points }: { points: { x: number; y: number; z: number }[] }) => {
+export const ThreeDCanvas = ({
+  points,
+}: {
+  points: { x: number; y: number; z: number; color: string }[];
+}) => {
   const vertices = points.flatMap((point) => [point.x, point.y, point.z]);
 
   return (
@@ -18,8 +22,8 @@ export const ThreeDCanvas = ({ points }: { points: { x: number; y: number; z: nu
 
       {points.map((point, index) => (
         <mesh key={index} position={[point.x, point.y, point.z]}>
-          <sphereGeometry args={[0.1, 32, 32]} />
-          <meshStandardMaterial color="blue" />
+          <sphereGeometry args={[0.2, 16, 16]} />
+          <meshStandardMaterial color={point.color} />
         </mesh>
       ))}
     </Canvas>

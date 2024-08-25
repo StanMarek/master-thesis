@@ -8,7 +8,8 @@ export const Home = () => {
         component="section"
         className="hero"
         sx={{
-          backgroundImage: 'url(https://via.placeholder.com/1920x600)',
+          backgroundImage:
+            'url(https://cdn.pixabay.com/photo/2023/11/19/06/07/business-8398064_1280.jpg)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           padding: 6,
@@ -16,15 +17,17 @@ export const Home = () => {
           justifyContent: 'center',
           alignItems: 'center',
           color: 'white',
-          minHeight: '100vh',
+          minHeight: '50vh',
         }}
       >
         <Box className="hero-content" textAlign="center">
           <Typography variant="h2" sx={{ mb: 2 }}>
-            Welcome to Mesh Master Thesis
+            Welcome to Stanisław Marek's Master Thesis project - Manage and visualize 3D data after
+            processing
           </Typography>
           <Typography variant="h6" sx={{ mb: 4 }}>
-            Discover the ultimate platform for managing your thesis with ease and efficiency.
+            Discover the ultimate platform for managing and post-process your VTK files with ease
+            and efficiency.
           </Typography>
           <Button href="#features" variant="contained" color="secondary" size="large">
             Learn More
@@ -43,8 +46,8 @@ export const Home = () => {
               <CardMedia
                 component="img"
                 alt="Feature 1"
-                height="140"
-                image="https://via.placeholder.com/150"
+                height="250"
+                image="https://cdn.pixabay.com/photo/2022/09/15/05/20/team-7455676_1280.png"
               />
               <CardContent>
                 <Typography variant="h5" component="div" sx={{ mb: 1 }}>
@@ -61,8 +64,8 @@ export const Home = () => {
               <CardMedia
                 component="img"
                 alt="Feature 2"
-                height="140"
-                image="https://via.placeholder.com/150"
+                height="250"
+                image="https://cdn.pixabay.com/photo/2023/03/01/14/01/tab-7823156_1280.png"
               />
               <CardContent>
                 <Typography variant="h5" component="div" sx={{ mb: 1 }}>
@@ -79,8 +82,8 @@ export const Home = () => {
               <CardMedia
                 component="img"
                 alt="Feature 3"
-                height="140"
-                image="https://via.placeholder.com/150"
+                height="250"
+                image="https://media.istockphoto.com/id/1173896899/pl/wektor/tarcza-p%C5%82aska-ikona-pixel-perfect-dla-urz%C4%85dze%C5%84-mobilnych-i-sieci-web.jpg?s=2048x2048&w=is&k=20&c=toV6NhBvhtybYQt1YrbGTxGsFZUJPFYOZV5B_lc-SlE="
               />
               <CardContent>
                 <Typography variant="h5" component="div" sx={{ mb: 1 }}>
@@ -102,8 +105,9 @@ export const Home = () => {
         </Typography>
         <Typography variant="body1" sx={{ maxWidth: 600, margin: '0 auto' }}>
           Mesh Master Thesis is dedicated to providing the best platform for students and
-          researchers to manage their thesis work. Our mission is to simplify the process and
-          enhance collaboration and productivity.
+          researchers to manage their VTK files. Our mission is to simplify the post-processing and
+          enhance collaboration and productivity. Thanks to our advanced analytics, you can gain
+          insights into your data and make informed decisions.
         </Typography>
       </Box>
     </Box>

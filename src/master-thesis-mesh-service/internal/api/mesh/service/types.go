@@ -10,6 +10,8 @@ type MeshCommodity struct {
 
 type MeshVertex struct {
 	X, Y, Z float64
+	Order   int
+	MeshId  string
 }
 
 type UserDTO struct {

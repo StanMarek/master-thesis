@@ -9,14 +9,16 @@ type HomeHandler struct {
 }
 
 type ApiHealth struct {
-	Status bool `json:"status"`
+	Status  bool   `json:"status"`
+	Version string `json:"version"`
 }
 
 func (handler *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	status := ApiHealth{
-		Status: true,
+		Status:  true,
+		Version: "1.0.0",
 	}
 
 	bytes, err := json.Marshal(status)

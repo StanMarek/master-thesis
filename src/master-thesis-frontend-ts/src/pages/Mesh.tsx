@@ -5,6 +5,7 @@ import {
   Card,
   CardContent,
   CircularProgress,
+  IconButton,
   Paper,
   Table,
   TableBody,
@@ -19,6 +20,8 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { ThreeDCanvas } from '../components/Canvas';
 import { BASE_API_URL } from '../main';
+import CalculateOutlinedIcon from '@mui/icons-material/CalculateOutlined';
+import BookmarkRemoveOutlinedIcon from '@mui/icons-material/BookmarkRemoveOutlined';
 
 interface MeshCommodity {
   id: string;
@@ -27,6 +30,8 @@ interface MeshCommodity {
   visible: boolean;
   fileLineIndex: number;
   tag: string;
+  rangeMax?: number;
+  rangeMin?: number;
 }
 
 interface MeshMetadata {
@@ -45,6 +50,8 @@ interface Vertice {
   x: number;
   y: number;
   z: number;
+  value?: number;
+  color: string;
 }
 
 const MeshPage: React.FC = () => {
@@ -86,6 +93,44 @@ const MeshPage: React.FC = () => {
     } catch (error) {
       console.error('Error fetching vertices:', error);
     }
+  };
+
+  const handleArchiveCommodity = async (commodityId: string) => {
+    const response = await axios
+      .patch(
+        `${BASE_API_URL}/mesh/commodity-archive/${commodityId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${await getAccessTokenSilently()}`,
+          },
+        },
+      )
+      .then((response) => response.data);
+
+    if (response.status) {
+      setMeshData((prev) => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          meshCommodities: prev.meshCommodities.filter((commodity) => commodity.id !== commodityId),
+        };
+      });
+    }
+  };
+
+  const handleCommodityCalculate = async (commodityId: string) => {
+    await axios
+      .post(
+        `${BASE_API_URL}/mesh/commodity-calculate/${commodityId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${await getAccessTokenSilently()}`,
+          },
+        },
+      )
+      .then((response) => response.data);
   };
 
   if (loading) {
@@ -156,8 +201,10 @@ const MeshPage: React.FC = () => {
               <TableCell>ID</TableCell>
               <TableCell>Name</TableCell>
               <TableCell>Type</TableCell>
+              <TableCell>Range</TableCell>
               <TableCell>Visible</TableCell>
               <TableCell>File Line Index</TableCell>
+              <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -166,8 +213,22 @@ const MeshPage: React.FC = () => {
                 <TableCell>{commodity.id}</TableCell>
                 <TableCell>{commodity.name}</TableCell>
                 <TableCell>{commodity.tag}</TableCell>
+                <TableCell>
+                  [{commodity.rangeMin} - {commodity.rangeMax}]
+                </TableCell>
                 <TableCell>{commodity.visible ? 'Yes' : 'No'}</TableCell>
                 <TableCell>{commodity.fileLineIndex}</TableCell>
+                <TableCell>
+                  <IconButton
+                    color="primary"
+                    onClick={() => handleCommodityCalculate(commodity.id)}
+                  >
+                    <CalculateOutlinedIcon />
+                  </IconButton>
+                  <IconButton color="error" onClick={() => handleArchiveCommodity(commodity.id)}>
+                    <BookmarkRemoveOutlinedIcon />
+                  </IconButton>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

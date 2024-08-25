@@ -76,6 +76,7 @@ model MeshVertice {
   x      Float
   y      Float
   z      Float
+  order  Int
   meshId String
   mesh   MeshMetadata               @relation(fields: [meshId], references: [id], onDelete: Cascade)
   value  MeshCommodityVerticeData[]
@@ -88,4 +89,5 @@ model MeshCommodityVerticeData {
   verticeId       String
   vertice         MeshVertice   @relation(fields: [verticeId], references: [id], onDelete: Cascade)
   value           Float
+  color           String
 }

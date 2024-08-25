@@ -36,9 +36,9 @@ func (service *MeshCalculationService) InsertMeshVertices(meshID string, points 
 
 	for _, point := range points {
 		_, err := service.DbClient.Exec(`
-			INSERT INTO "MeshVertice" ("meshId", x, y, z, id)
-			VALUES ($1, $2, $3, $4, $5)`,
-			meshID, point.X, point.Y, point.Z, uuid.New())
+			INSERT INTO "MeshVertice" ("meshId", x, y, z, id, "order")
+			VALUES ($1, $2, $3, $4, $5, $6)`,
+			meshID, point.X, point.Y, point.Z, uuid.New(), point.Order)
 		if err != nil {
 
 			return err

@@ -30,9 +30,21 @@ export class MeshController {
     @Inject(EventEmitter2) private readonly eventEmitter: EventEmitter2,
   ) {}
 
-  @Post()
-  create(@Body() createMeshDto: CreateMeshDto) {
-    return this.meshService.create(createMeshDto);
+  @UseGuards(AuthGuard('jwt'))
+  @Patch('commodity-archive/:id')
+  async archiveCommodity(@Param('id') id: string) {
+    await this.meshService.archiveCommodity(id);
+
+    return {
+      status: true,
+      message: 'Commodity archived successfully',
+    };
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post('commodity-calculate/:id')
+  async calculateCommodity(@User() user: UserDTO, @Param('id') id: string) {
+    await this.meshService.calculateCommodity(user, id);
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -99,13 +111,9 @@ export class MeshController {
     return vertices;
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateMeshDto: UpdateMeshDto) {
-    return this.meshService.update(+id, updateMeshDto);
-  }
-
+  @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.meshService.remove(+id);
+  remove(@User() user: UserDTO, @Param('id') id: string) {
+    return this.meshService.remove(id, user);
   }
 }

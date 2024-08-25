@@ -1,23 +1,14 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
+import { OnEvent } from '@nestjs/event-emitter';
+import { File } from '@prisma/client';
+import axios from 'axios';
+import { SocketEventName } from 'src/common/ws';
+import { DBClientService } from 'src/db-client/db-client.service';
+import { SocketService } from 'src/socket/socket.service';
+import { UserDTO } from 'src/user/dto/user.dto';
 import { CreateMeshDto } from './dto/create-mesh.dto';
 import { UpdateMeshDto } from './dto/update-mesh.dto';
-import { UserDTO } from 'src/user/dto/user.dto';
-import { DBClientService } from 'src/db-client/db-client.service';
-import { OnEvent } from '@nestjs/event-emitter';
-import { File, MeshCommodityTag, Prisma } from '@prisma/client';
-import { BlobStorageService } from 'src/blob-storage/blob-storage.service';
-import internal from 'stream';
-import { chunkArray } from 'src/common/util/chunk-array';
-import { SocketService } from 'src/socket/socket.service';
-import { SocketEventName } from 'src/common/ws';
-import {
-  dataConstants,
-  dataConstantsName,
-  dataConstantsTagMap,
-} from 'src/common/const';
-import { streamToBuffer } from 'src/common/util/stream-to-buffer';
 import { MeshCalculationService } from './mesh-calculation.service';
-import axios from 'axios';
 
 @Injectable()
 export class MeshService {
@@ -28,8 +19,47 @@ export class MeshService {
     private readonly meshCalculationService: MeshCalculationService,
   ) {}
 
-  create(createMeshDto: CreateMeshDto) {
-    return 'This action adds a new mesh';
+  async calculateCommodity(user: UserDTO, id: string) {
+    const commodity = await this.dbClientService.meshCommodity.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!commodity || commodity.tag !== 'TEMPERATURE') {
+      this.socketService.emit(
+        SocketEventName.CALCULATE_COMMODITY_START,
+        {
+          status: false,
+          message: 'Commodity calculation failed',
+          data: 'Commodity not found or not a temperature commodity',
+        },
+        user.sub,
+      );
+      return;
+    }
+
+    this.socketService.emit(
+      SocketEventName.CALCULATE_COMMODITY_START,
+      {
+        status: true,
+        message: 'Commodity calculation started',
+        data: null,
+      },
+      user.sub,
+    );
+
+    await this.meshCalculationService.calculateCommodity(commodity.id);
+
+    this.socketService.emit(
+      SocketEventName.CALCULATE_COMMODITY_END,
+      {
+        status: true,
+        message: 'Commodity calculated successfully',
+        data: null,
+      },
+      user.sub,
+    );
   }
 
   async findAll(user: UserDTO) {
@@ -80,19 +110,44 @@ export class MeshService {
       },
     });
 
-    return this.dbClientService.meshVertice.findMany({
+    const vertices = await this.dbClientService.meshVertice.findMany({
       where: {
         meshId: mesh.id,
+      },
+      include: {
+        value: true,
+      },
+    });
+
+    return vertices.map((v) => {
+      return {
+        x: v.x,
+        y: v.y,
+        z: v.z,
+        value: v.value[0]?.value ?? 0,
+        color: v.value[0]?.color ?? 'blue',
+      };
+    });
+  }
+
+  remove(id: string, user: UserDTO) {
+    return this.dbClientService.meshMetadata.delete({
+      where: {
+        id,
+        owner: user.sub,
       },
     });
   }
 
-  update(id: number, updateMeshDto: UpdateMeshDto) {
-    return `This action updates a #${id} mesh`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} mesh`;
+  archiveCommodity(id: string) {
+    return this.dbClientService.meshCommodity.update({
+      where: {
+        id,
+      },
+      data: {
+        visible: false,
+      },
+    });
   }
 
   @OnEvent('client.mesh.calculate.start')

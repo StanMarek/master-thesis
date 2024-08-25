@@ -19,6 +19,88 @@ export class MeshCalculationService {
     private readonly blobStorageService: BlobStorageService,
   ) {}
 
+  async calculateCommodity(commodityId: string) {
+    const commodity = await this.dbClientService.meshCommodity.findUnique({
+      where: {
+        id: commodityId,
+      },
+      include: {
+        mesh: {
+          include: {
+            file: true,
+          },
+        },
+      },
+    });
+
+    const allCommodities = await this.dbClientService.meshCommodity.findMany({
+      where: {
+        meshId: commodity.meshId,
+      },
+      orderBy: {
+        fileLineIndex: 'asc',
+      },
+    });
+
+    const index = allCommodities.findIndex((c) => c.id === commodity.id);
+    const nextCommodity = allCommodities[index + 2];
+
+    const commodityLineStartIndex = commodity.fileLineIndex + 2;
+    const commodityLineEndIndex = nextCommodity.fileLineIndex;
+
+    const filePath = commodity.mesh.file.path;
+    const blob = await this.blobStorageService.getFile(filePath);
+    const buffer = await streamToBuffer(blob);
+    const parsedBuffer = buffer.toString().split('\n');
+
+    const dataArray = chunkArray(
+      parsedBuffer
+        .slice(commodityLineStartIndex, commodityLineEndIndex)
+        .flatMap((line) =>
+          line
+            .trim()
+            .split(' ')
+            .filter((line) => line !== ' ' && line !== '')
+            .map((item) => Number(item)),
+        ),
+    ).flat();
+
+    const rangeMax = Math.max(...dataArray);
+    const rangeMin = Math.min(...dataArray);
+    await this.dbClientService.meshCommodity.update({
+      where: {
+        id: commodity.id,
+      },
+      data: {
+        rangeMax,
+        rangeMin,
+      },
+    });
+
+    const vertices = await this.dbClientService.meshVertice.findMany({
+      where: {
+        meshId: commodity.meshId,
+      },
+      orderBy: {
+        order: 'asc',
+      },
+    });
+
+    const commodityVerticeData: Prisma.MeshCommodityVerticeDataCreateManyInput[] =
+      dataArray.map((value, index) => {
+        return {
+          value,
+          verticeId: vertices[index].id,
+          meshCommodityId: commodity.id,
+          color: interpolateColor(value, rangeMin, rangeMax),
+        };
+      });
+
+    await this.dbClientService.meshCommodityVerticeData.createMany({
+      data: commodityVerticeData,
+    });
+  }
+
   async calculate(file: File, user: UserDTO) {
     const blob = await this.blobStorageService.getFile(file.path);
     const buffer = await streamToBuffer(blob);
@@ -123,13 +205,21 @@ export class MeshCalculationService {
     });
   }
 
-  private async createMeshVertices(meshId: string, pointsCoordinates: any[]) {
+  private async createMeshVertices(
+    meshId: string,
+    pointsCoordinates: {
+      x: number;
+      y: number;
+      z: number;
+    }[],
+  ) {
     await this.dbClientService.meshVertice.createMany({
-      data: pointsCoordinates.map((point) => ({
+      data: pointsCoordinates.map((point, index) => ({
         x: point.x,
         y: point.y,
         z: point.z,
         meshId,
+        order: index,
       })),
     });
   }

@@ -58,11 +58,13 @@ func (service *MeshCalculationService) extractPointsCoordinates(dataMapping []Da
 		}
 	}
 
+	order := 0
 	for i := 0; i < len(allPoints); i += 3 {
 		x, _ := strconv.ParseFloat(allPoints[i], 64)
 		y, _ := strconv.ParseFloat(allPoints[i+1], 64)
 		z, _ := strconv.ParseFloat(allPoints[i+2], 64)
-		pointsCoordinates = append(pointsCoordinates, MeshVertex{X: x, Y: y, Z: z})
+		pointsCoordinates = append(pointsCoordinates, MeshVertex{X: x, Y: y, Z: z, Order: order})
+		order++
 	}
 
 	return pointsCoordinates

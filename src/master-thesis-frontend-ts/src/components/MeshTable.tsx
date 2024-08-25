@@ -152,9 +152,24 @@ export function MeshTable({ refresh }: { refresh: boolean }) {
     // Implement edit functionality here
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: number) => {
     console.log('Delete mesh with ID:', id);
-    // Implement delete functionality here
+    const token = await getAccessTokenSilently();
+    try {
+      const response = await axios.delete(`${BASE_API_URL}/mesh/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status === 200) {
+        setData((prevData) => prevData.filter((mesh) => mesh.id !== id));
+        localStorage.setItem('meshTableData', JSON.stringify(data));
+        refresh = !refresh;
+      }
+    } catch (error) {
+      console.error('Error deleting mesh:', error);
+    }
   };
 
   if (loading) {

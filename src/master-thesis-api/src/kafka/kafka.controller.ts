@@ -14,8 +14,9 @@ export class KafkaController {
     this.kafkaService.handleTestMessage(payload);
   }
 
-  @EventPattern('mesh.calculated', Transport.KAFKA)
+  @EventPattern(KafkaEventName.CALCULATE_MESH_END_KAFKA, Transport.KAFKA)
   handleMeshCalculated(@Payload() payload: any) {
-    Logger.log('Mesh calculated', payload);
+    Logger.log(`Mesh calculated - sub: ${payload}`);
+    this.kafkaService.handleMeshCalculated(payload);
   }
 }

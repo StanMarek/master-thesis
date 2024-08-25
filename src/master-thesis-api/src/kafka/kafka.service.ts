@@ -20,4 +20,16 @@ export class KafkaService {
       payload.sub,
     );
   }
+
+  handleMeshCalculated(payload: any) {
+    this.socketService.emit(
+      SocketEventName.CALCULATE_MESH_END,
+      {
+        status: true,
+        message: 'Mesh calculated successfully',
+        data: null,
+      },
+      payload,
+    );
+  }
 }
