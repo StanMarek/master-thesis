@@ -40,6 +40,10 @@ func main() {
 		http.HandlerFunc(file.UploadChunkedFile),
 	))))
 
+	router.Handle("/api/mesh/vertices", middleware.EnableCors((middleware.EnsureValidToken()(
+		http.HandlerFunc(mesh.Vertices),
+	))))
+
 	router.Handle("/api/mesh/calculate", middleware.EnsureValidToken()(
 		http.HandlerFunc(mesh.Calculate),
 	))

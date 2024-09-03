@@ -23,7 +23,7 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { AxesHelper, BufferGeometry, Color, Float32BufferAttribute } from 'three';
-import { BASE_API_URL } from '../main';
+import { BASE_API_URL, BASE_MESH_API_URL } from '../main';
 
 import * as THREE from 'three';
 
@@ -93,7 +93,8 @@ const MeshPage: React.FC = () => {
   const fetchVerticesAndEdges = async () => {
     const token = await getAccessTokenSilently();
     try {
-      const response = await axios.get(`${BASE_API_URL}/mesh/${id}/vertices`, {
+      // const response = await axios.get(`${BASE_API_URL}/mesh/${id}/vertices`, {
+      const response = await axios.get(`${BASE_MESH_API_URL}/mesh/vertices?id=${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

@@ -9,9 +9,20 @@ type MeshCommodity struct {
 }
 
 type MeshVertex struct {
-	X, Y, Z float64
-	Order   int
-	MeshId  string
+	X      float64 `json:"x"`
+	Y      float64 `json:"y"`
+	Z      float64 `json:"z"`
+	Order  int     `json:"order"`
+	MeshId string  `json:"meshId"`
+	Color  string  `json:"color"`
+}
+
+type MeshEdge struct {
+	Id     string    `json:"id"`
+	MeshId string    `json:"meshId"`
+	Start  int       `json:"start"`
+	End    int       `json:"end"`
+	Data   []float64 `json:"data"`
 }
 
 type UserDTO struct {

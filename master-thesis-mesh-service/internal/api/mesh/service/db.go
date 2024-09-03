@@ -1,6 +1,12 @@
 package meshService
 
-import "github.com/google/uuid"
+import (
+	"fmt"
+
+	"github.com/google/uuid"
+
+	pg "github.com/lib/pq"
+)
 
 func (service *MeshCalculationService) InsertMeshMetadata(name, owner string, verticesCount int, fileID string) (string, error) {
 	var meshID string
@@ -45,4 +51,57 @@ func (service *MeshCalculationService) InsertMeshVertices(meshID string, points 
 		}
 	}
 	return nil
+}
+
+func (service *MeshCalculationService) GetVertices(meshID string) ([]MeshVertex, error) {
+	rows, err := service.DbClient.Query(`
+		SELECT x, y, z, "order"
+		FROM "MeshVertice"
+		WHERE "meshId" = $1`, meshID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var vertices []MeshVertex
+	for rows.Next() {
+
+		var vertex MeshVertex
+		err := rows.Scan(&vertex.X, &vertex.Y, &vertex.Z, &vertex.Order)
+		if err != nil {
+			return nil, err
+		}
+		vertex.MeshId = meshID
+		vertex.Color = "blue"
+		vertices = append(vertices, vertex)
+	}
+
+	return vertices, nil
+}
+
+func (service *MeshCalculationService) GetEdges(meshID string) ([]MeshEdge, error) {
+	rows, err := service.DbClient.Query(`
+		SELECT "start", "end", "data"
+		FROM "MeshEdge"
+		WHERE "meshId" = $1`, meshID)
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var edges []MeshEdge
+	for rows.Next() {
+
+		var edge MeshEdge
+		err := rows.Scan(&edge.Start, &edge.End, pg.Array(&edge.Data))
+		if err != nil {
+			fmt.Println(err)
+			return nil, err
+		}
+		edge.MeshId = meshID
+		edges = append(edges, edge)
+	}
+
+	return edges, nil
 }
